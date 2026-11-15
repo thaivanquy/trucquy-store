@@ -1,0 +1,19 @@
+# Git
+.git/
+.gitignore
+
+# Docker
+docker-compose*.yml
+docker/
+
+# Docs
+README.md
+*.md
+
+# Local env
+.env
+.env.*
+
+# Logs
+*.log
+

@@ -1,0 +1,16 @@
+# Root gitignore
+.env
+
+# FE
+fe/node_modules/
+fe/dist/
+
+# BE
+be/vendor/
+be/.env
+be/storage/logs/*.log
+
+# Docker
+.DS_Store
+Thumbs.db
+

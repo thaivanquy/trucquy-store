@@ -1,0 +1,115 @@
+version: '3.9'
+
+services:
+  # ─── Backend (Laravel 11) ─────────────────────────────────────────
+  be:
+    build:
+      context: ./be
+      dockerfile: Dockerfile
+    container_name: trucquy_be
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./be:/var/www
+      - /var/www/vendor  # exclude vendor from bind mount
+    networks:
+      - trucquy_net
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    environment:
+      - APP_ENV=local
+      - APP_DEBUG=true
+
+  # ─── Nginx for Backend API ────────────────────────────────────────
+  nginx_be:
+    image: nginx:alpine
+    container_name: trucquy_nginx_be
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    volumes:
+      - ./be:/var/www
+      - ./docker/nginx/be.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - trucquy_net
+    depends_on:
+      - be
+
+  # ─── Frontend (Vue 3) ─────────────────────────────────────────────
+  fe:
+    build:
+      context: ./fe
+      dockerfile: Dockerfile
+    container_name: trucquy_fe
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    networks:
+      - trucquy_net
+    depends_on:
+      - be
+
+  # ─── MySQL 8 ──────────────────────────────────────────────────────
+  db:
+    image: mysql:8.0
+    container_name: trucquy_db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-trucquy_store}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-rootpassword}
+      MYSQL_USER: ${DB_USERNAME:-trucquy}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-secret}
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - trucquy_net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpassword"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # ─── Redis ────────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: trucquy_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - trucquy_net
+
+  # ─── phpMyAdmin (optional, dev only) ──────────────────────────────
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: trucquy_phpmyadmin
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: db
+      PMA_USER: root
+      PMA_PASSWORD: ${DB_ROOT_PASSWORD:-rootpassword}
+    networks:
+      - trucquy_net
+    depends_on:
+      - db
+    profiles:
+      - tools
+
+networks:
+  trucquy_net:
+    driver: bridge
+
+volumes:
+  db_data:
+  redis_data:
+
