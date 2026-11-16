@@ -37,6 +37,16 @@ export const adminRoutes: RouteRecordRaw[] = [
           breadcrumbs: ['admin.products', 'admin.categories'],
         },
       },
+      {
+        path: 'suppliers',
+        name: 'admin-suppliers',
+        component: () => import('@/features/admin/suppliers/views/SupplierListView.vue'),
+        meta: {
+          title: 'Quản lý Nhà cung cấp',
+          requiresAuth: true,
+          breadcrumbs: ['admin.customers', 'admin.suppliers'],
+        },
+      },
     ],
   },
 ]

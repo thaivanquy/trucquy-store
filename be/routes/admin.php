@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\Api\Admin\AuthController;
 use App\Http\Controllers\Api\Admin\CategoryController;
+use App\Http\Controllers\Api\Admin\CommonDataController;
+use App\Http\Controllers\Api\Admin\SupplierController;
 use App\Http\Middleware\Admin\AuthenticateAdminToken;
 use Illuminate\Support\Facades\Route;
 
@@ -20,4 +22,11 @@ Route::middleware(AuthenticateAdminToken::class)->group(function () {
     Route::patch('categories/reorder', [CategoryController::class, 'reorder']);
     Route::patch('categories/{category}/toggle-status', [CategoryController::class, 'toggleStatus']);
     Route::apiResource('categories', CategoryController::class);
+
+    Route::patch('suppliers/{supplier}/toggle-status', [SupplierController::class, 'toggleStatus']);
+    Route::apiResource('suppliers', SupplierController::class);
+
+    Route::get('provinces', [CommonDataController::class, 'getProvinces']);
+    Route::get('provinces/{province}/wards', [CommonDataController::class, 'getWards']);
+    Route::get('banks', [CommonDataController::class, 'getBanks']);
 });

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue'
+import { storeToRefs } from 'pinia'
 import {
   SearchOutlined,
   EditOutlined,
@@ -12,7 +13,7 @@ import {
   HolderOutlined,
 } from '@ant-design/icons-vue'
 import type { Category, CategoryFilterParams } from '../types'
-import { categoryService } from '../services/categoryService'
+import { useCategoryStore } from '../stores/categoryStore'
 import CategoryFormModal from '../components/CategoryFormModal.vue'
 import { useToast } from '@/composables/useToast'
 import { useI18n } from '@/i18n'
@@ -20,17 +21,8 @@ import { useI18n } from '@/i18n'
 const toast = useToast()
 const { t } = useI18n()
 
-const isLoading = ref<boolean>(false)
-const allCategories = ref<Category[]>([])
-const rootCategories = ref<Category[]>([])
-const expandedParentIds = ref<Set<number>>(new Set())
-
-interface CategoryTreeGroup {
-  parent: Category
-  children: Category[]
-}
-
-const treeGroups = ref<CategoryTreeGroup[]>([])
+const categoryStore = useCategoryStore()
+const { allCategories, rootCategories, isLoading } = storeToRefs(categoryStore)
 
 const filters = reactive<CategoryFilterParams>({
   search: '',
@@ -44,6 +36,15 @@ const pagination = reactive({
   total: 0,
 })
 
+const expandedParentIds = ref<Set<number>>(new Set())
+
+interface CategoryTreeGroup {
+  parent: Category
+  children: Category[]
+}
+
+const treeGroups = ref<CategoryTreeGroup[]>([])
+
 const isModalVisible = ref<boolean>(false)
 const selectedCategory = ref<Category | null>(null)
 const defaultParentId = ref<number | null>(null)
@@ -55,18 +56,15 @@ const isReordering = ref<boolean>(false)
 
 async function loadDropdownCategories() {
   try {
-    const res = await categoryService.getCategories({ all: true })
-    allCategories.value = res.data
-    rootCategories.value = res.data.filter((c) => !c.parent_id)
+    await categoryStore.fetchDropdownCategories()
   } catch (err: any) {
     console.error(err)
   }
 }
 
 async function loadData() {
-  isLoading.value = true
   try {
-    const response = await categoryService.getCategories({
+    const response = await categoryStore.fetchCategories({
       tree: true,
       search: filters.search ? filters.search.trim() : undefined,
       parent_id: filters.parent_id !== '' && filters.parent_id !== undefined ? filters.parent_id : undefined,
@@ -74,7 +72,6 @@ async function loadData() {
       page: pagination.current,
       per_page: pagination.pageSize,
     })
-
     treeGroups.value = response.data.map((cat) => ({
       parent: cat,
       children: cat.children || [],
@@ -91,8 +88,6 @@ async function loadData() {
     })
   } catch (err: any) {
     toast.error(err.message || t('category.loadError'))
-  } finally {
-    isLoading.value = false
   }
 }
 
@@ -167,7 +162,7 @@ async function onDrop(targetIndex: number) {
 
     isReordering.value = true
     try {
-      await categoryService.reorderCategories(items)
+      await categoryStore.reorderCategories(items)
       toast.success(t('category.reorderSuccess'))
     } catch (err: any) {
       toast.error(err.message || t('category.reorderError'))
@@ -204,8 +199,7 @@ function openEditModal(record: Category) {
 
 async function handleToggleStatus(record: Category) {
   try {
-    await categoryService.toggleStatus(record.id)
-    record.is_active = !record.is_active
+    await categoryStore.toggleStatus(record)
     toast.success(t('category.toggleStatusSuccess', { name: record.name }))
     loadDropdownCategories()
   } catch (err: any) {
@@ -215,7 +209,7 @@ async function handleToggleStatus(record: Category) {
 
 async function handleDelete(record: Category) {
   try {
-    await categoryService.deleteCategory(record.id)
+    await categoryStore.deleteCategory(record.id)
     toast.success(t('category.deleteSuccess', { name: record.name }))
     loadData()
     loadDropdownCategories()
@@ -314,22 +308,14 @@ onMounted(() => {
       </a-select>
     </div>
 
+    <!-- Loading State: Mặc định của Ant Design -->
     <div v-if="isLoading && treeGroups.length === 0" class="py-16 text-center bg-white rounded-xl border border-slate-200/90 shadow-2xs">
-      <div class="w-8 h-8 border-2 border-sky-600 border-t-transparent rounded-full animate-spin mx-auto mb-2.5"></div>
-      <p class="text-sm text-slate-500 font-medium">{{ t('category.loading') }}</p>
+      <a-spin size="large" />
     </div>
 
+    <!-- Empty State: Mặc định của Ant Design -->
     <div v-else-if="treeGroups.length === 0" class="py-14 text-center bg-white rounded-xl border border-slate-200/90 p-6 shadow-2xs">
-      <PictureOutlined class="text-3xl text-slate-300 mb-2" />
-      <h3 class="text-sm sm:text-base font-semibold text-slate-800">{{ t('category.emptyTitle') }}</h3>
-      <p class="text-sm text-slate-500 mt-0.5">{{ t('category.emptyDesc') }}</p>
-      <button
-        type="button"
-        @click="resetFilters"
-        class="mt-3.5 px-4 py-2 rounded-lg border border-slate-200 text-sm font-medium text-slate-700 hover:bg-slate-50 cursor-pointer"
-      >
-        {{ t('category.resetFilter') }}
-      </button>
+      <a-empty />
     </div>
 
     <div v-else class="space-y-3.5">
@@ -429,6 +415,7 @@ onMounted(() => {
               :ok-text="t('category.deleteBtn')"
               :cancel-text="t('category.cancelBtn')"
               ok-type="danger"
+              placement="left"
               @confirm="handleDelete(group.parent)"
             >
               <button
@@ -524,6 +511,7 @@ onMounted(() => {
                     :ok-text="t('category.deleteBtn')"
                     :cancel-text="t('category.cancelBtn')"
                     ok-type="danger"
+                    placement="left"
                     @confirm="handleDelete(child)"
                   >
                     <button

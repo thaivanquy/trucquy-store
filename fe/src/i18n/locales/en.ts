@@ -146,6 +146,101 @@ export default {
     invalidImageError: 'Please select a valid image file!',
     imageSizeError: 'Image size cannot exceed {size}MB!',
   },
+  supplier: {
+    title: 'Suppliers',
+    subtitle: 'Manage goods supply partners and contact details',
+    addButton: 'Add Supplier',
+    searchPlaceholder: 'Search by name, code, phone, email, contact person...',
+    filterStatus: 'Status',
+    allStatuses: 'All statuses',
+    statusActive: 'Active',
+    statusInactive: 'Inactive',
+    loading: 'Loading suppliers list...',
+    emptyTitle: 'No suppliers found',
+    emptyDesc: 'Try changing your search terms or click Add Supplier to get started.',
+
+    // Table columns
+    colSTT: '#',
+    colCode: 'Code',
+    colName: 'Supplier Name',
+    colPhone: 'Phone',
+    colEmail: 'Email',
+    colAddress: 'Address',
+    colBank: 'Bank Info',
+    colStatus: 'Status',
+    colActions: 'Actions',
+    contactLabel: 'Contact',
+    phoneLabelShort: 'Tel',
+
+    // Actions
+    editBtn: 'Edit',
+    deleteBtn: 'Delete',
+    cancelBtn: 'Cancel',
+    confirmDelete: 'Are you sure you want to delete this supplier?',
+    showingCount: 'Showing {count} / {total} suppliers',
+
+    // Messages
+    toggleStatusSuccess: 'Updated status for "{name}"!',
+    toggleStatusError: 'Failed to update supplier status!',
+    deleteSuccess: 'Deleted supplier "{name}" successfully!',
+    deleteError: 'Failed to delete this supplier!',
+    loadError: 'Failed to load suppliers list!',
+    createSuccess: 'Added supplier "{name}" successfully!',
+    updateSuccess: 'Updated supplier "{name}" successfully!',
+    saveError: 'Failed to save supplier details!',
+
+    // Modal Form
+    modalCreateTitle: 'Add New Supplier',
+    modalEditTitle: 'Edit Supplier',
+    modalDetailTitle: 'Supplier Details',
+    sectionBasic: 'Basic Information',
+    sectionContact: 'Contact Person',
+    sectionTaxAddress: 'Address',
+    sectionBank: 'Bank Account',
+
+    codeLabel: 'Supplier Code',
+    codePlaceholder: 'Leave empty to auto-generate (NCC-xxx)',
+    nameLabel: 'Supplier Name',
+    namePlaceholder: 'Enter supplier or company name...',
+    nameRequired: 'Please enter supplier name',
+    nameMax: 'Supplier name must not exceed 200 characters',
+
+    phoneLabel: 'Phone Number',
+    phonePlaceholder: '0901234567...',
+    emailLabel: 'Email',
+    emailPlaceholder: 'supplier@example.com',
+    emailInvalid: 'Invalid email address format',
+
+    addressLabel: 'Address Details',
+    addressPlaceholder: 'Street address, building...',
+    provinceLabel: 'Province / City',
+    provincePlaceholder: 'Select province/city',
+    wardLabel: 'Ward / Commune',
+    wardPlaceholder: 'Select ward/commune',
+
+    contactPersonLabel: 'Contact Person',
+    contactPersonPlaceholder: 'Full name of contact person...',
+    contactPhoneLabel: 'Contact Phone',
+    contactPhonePlaceholder: 'Mobile number of contact person...',
+
+    bankNameLabel: 'Bank Name',
+    bankNamePlaceholder: 'Select bank...',
+    bankAccountLabel: 'Account Number',
+    bankAccountPlaceholder: 'Enter bank account number...',
+    bankAccountNameLabel: 'Account Holder Name',
+    bankAccountNamePlaceholder: 'Account holder name...',
+
+    isActiveLabel: 'Active Status',
+    noteLabel: 'Notes',
+    notePlaceholder: 'Additional notes regarding supplier...',
+
+    cancelModal: 'Close',
+    submitCreate: 'Add Supplier',
+    submitUpdate: 'Save Changes',
+    createdAt: 'Created At',
+    updatedAt: 'Updated At',
+    notUpdated: 'Not updated',
+  },
   shop: {
     storeName: 'TrucQuy Store',
     home: 'Home',
@@ -156,4 +251,5 @@ export default {
     welcomeBanner: 'Welcome to TrucQuy Store',
     welcomeDesc: 'Storefront interface is currently under development.',
   },
-}
+};
+

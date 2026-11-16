@@ -46,8 +46,12 @@ const isTablet = breakpoints.between('md', 'lg') // 768px - 1024px
 const collapsed = ref<boolean>(breakpoints.smaller('lg').value)
 const mobileDrawerOpen = ref<boolean>(false)
 
-const selectedKeys = ref<string[]>([route.name === 'admin-categories' ? 'categories' : 'dashboard'])
-const openKeys = ref<string[]>(route.name === 'admin-categories' ? ['sub-inventory'] : [])
+const selectedKeys = ref<string[]>([
+  route.name === 'admin-categories' ? 'categories' : route.name === 'admin-suppliers' ? 'suppliers' : 'dashboard',
+])
+const openKeys = ref<string[]>(
+  route.name === 'admin-categories' ? ['sub-inventory'] : route.name === 'admin-suppliers' ? ['sub-customers'] : [],
+)
 
 interface BreadcrumbItem {
   title: string
@@ -80,6 +84,13 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => {
     ]
   }
 
+  if (route.name === 'admin-suppliers') {
+    return [
+      { title: t('admin.customers') },
+      { title: t('admin.suppliers') },
+    ]
+  }
+
   return [{ title: t('admin.dashboard') }]
 })
 
@@ -90,6 +101,11 @@ watch(
       selectedKeys.value = ['categories']
       if (!collapsed.value) {
         openKeys.value = ['sub-inventory']
+      }
+    } else if (name === 'admin-suppliers') {
+      selectedKeys.value = ['suppliers']
+      if (!collapsed.value) {
+        openKeys.value = ['sub-customers']
       }
     } else if (name === 'admin-dashboard') {
       selectedKeys.value = ['dashboard']
@@ -133,6 +149,8 @@ function handleMenuSelect({ key }: { key: string }) {
     router.push('/admin/dashboard')
   } else if (key === 'categories') {
     router.push('/admin/categories')
+  } else if (key === 'suppliers') {
+    router.push('/admin/suppliers')
   } else {
     toast.info(`${t('admin.overview')} - Tính năng đang phát triển`)
   }

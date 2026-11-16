@@ -7,7 +7,8 @@ import {
   ApartmentOutlined,
 } from '@ant-design/icons-vue'
 import type { Category, CategoryFormData } from '../types'
-import { categoryService } from '../services/categoryService'
+import { categorySchema } from '../types'
+import { useCategoryStore } from '../stores/categoryStore'
 import AppImageUpload from '@/components/common/AppImageUpload.vue'
 import { useToast } from '@/composables/useToast'
 import { useI18n } from '@/i18n'
@@ -31,6 +32,7 @@ const emit = defineEmits<Emits>()
 
 const toast = useToast()
 const { t } = useI18n()
+const categoryStore = useCategoryStore()
 const isSubmitting = ref(false)
 
 const form = ref<CategoryFormData>({
@@ -146,36 +148,17 @@ watch(
 
 function validate(): boolean {
   resetErrors()
-  let isValid = true
-
-  const nameVal = form.value.name ? form.value.name.trim() : ''
-  if (!nameVal) {
-    errors.name = t('category.nameRequired')
-    isValid = false
-  } else if (nameVal.length > 150) {
-    errors.name = t('category.nameMax')
-    isValid = false
+  const result = categorySchema.safeParse(form.value)
+  if (!result.success) {
+    result.error.issues.forEach((issue) => {
+      const field = issue.path[0] as string
+      if (field && !errors[field]) {
+        errors[field] = issue.message
+      }
+    })
+    return false
   }
-
-  const codeVal = form.value.code ? form.value.code.trim() : ''
-  if (!codeVal) {
-    errors.code = t('category.codeRequired')
-    isValid = false
-  } else if (codeVal.length > 50) {
-    errors.code = t('category.codeMax')
-    isValid = false
-  }
-
-  const slugVal = form.value.slug ? form.value.slug.trim() : ''
-  if (!slugVal) {
-    errors.slug = t('category.slugRequired')
-    isValid = false
-  } else if (slugVal.length > 180) {
-    errors.slug = t('category.slugMax')
-    isValid = false
-  }
-
-  return isValid
+  return true
 }
 
 async function handleSubmit() {
@@ -186,10 +169,10 @@ async function handleSubmit() {
   isSubmitting.value = true
   try {
     if (isEdit.value && props.category?.id) {
-      await categoryService.updateCategory(props.category.id, form.value)
+      await categoryStore.updateCategory(props.category.id, form.value)
       toast.success(t('category.updateSuccess', { name: form.value.name }))
     } else {
-      await categoryService.createCategory(form.value)
+      await categoryStore.createCategory(form.value)
       toast.success(t('category.createSuccess', { name: form.value.name }))
     }
     emit('update:visible', false)
@@ -220,8 +203,8 @@ async function handleSubmit() {
     @cancel="emit('update:visible', false)"
   >
     <div class="p-1">
-      <div class="pb-3 mb-3.5 border-b border-slate-100 flex items-center justify-between">
-        <h3 class="text-base sm:text-lg font-bold text-slate-900 leading-tight">
+      <div class="pb-3 mb-3.5 border-b border-slate-100 flex items-center justify-between pr-8 min-h-[32px]">
+        <h3 class="text-base sm:text-lg font-bold text-slate-900 leading-normal m-0">
           {{ isEdit ? t('category.modalEditTitle') : t('category.modalCreateTitle') }}
         </h3>
       </div>

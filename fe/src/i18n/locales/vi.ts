@@ -146,6 +146,101 @@ export default {
     invalidImageError: 'Vui lòng chọn tệp hình ảnh hợp lệ!',
     imageSizeError: 'Kích thước ảnh không được vượt quá {size}MB!',
   },
+  supplier: {
+    title: 'Nhà cung cấp',
+    subtitle: 'Quản lý thông tin đối tác cung ứng hàng hóa và liên hệ',
+    addButton: 'Thêm nhà cung cấp',
+    searchPlaceholder: 'Tìm kiếm theo tên, mã NCC, SĐT, email, người liên hệ...',
+    filterStatus: 'Trạng thái',
+    allStatuses: 'Tất cả trạng thái',
+    statusActive: 'Đang hoạt động',
+    statusInactive: 'Tạm dừng',
+    loading: 'Đang tải danh sách nhà cung cấp...',
+    emptyTitle: 'Chưa có nhà cung cấp nào',
+    emptyDesc: 'Thử thay đổi từ khóa tìm kiếm hoặc bấm Thêm nhà cung cấp để bắt đầu.',
+
+    // Table columns
+    colSTT: 'STT',
+    colCode: 'Mã NCC',
+    colName: 'Tên nhà cung cấp',
+    colPhone: 'Số điện thoại',
+    colEmail: 'Email',
+    colAddress: 'Địa chỉ',
+    colBank: 'Ngân hàng',
+    colStatus: 'Trạng thái',
+    colActions: 'Thao tác',
+    contactLabel: 'Người liên hệ',
+    phoneLabelShort: 'SĐT',
+
+    // Actions
+    editBtn: 'Chỉnh sửa',
+    deleteBtn: 'Xóa',
+    cancelBtn: 'Hủy bỏ',
+    confirmDelete: 'Bạn có chắc chắn muốn xóa nhà cung cấp này không?',
+    showingCount: 'Hiển thị {count} / {total} nhà cung cấp',
+
+    // Messages
+    toggleStatusSuccess: 'Đã cập nhật trạng thái của "{name}"!',
+    toggleStatusError: 'Không thể đổi trạng thái nhà cung cấp!',
+    deleteSuccess: 'Đã xóa nhà cung cấp "{name}" thành công!',
+    deleteError: 'Không thể xóa nhà cung cấp này!',
+    loadError: 'Không thể tải danh sách nhà cung cấp!',
+    createSuccess: 'Thêm nhà cung cấp "{name}" thành công!',
+    updateSuccess: 'Cập nhật nhà cung cấp "{name}" thành công!',
+    saveError: 'Không thể lưu thông tin nhà cung cấp!',
+
+    // Modal Form
+    modalCreateTitle: 'Thêm mới Nhà cung cấp',
+    modalEditTitle: 'Chỉnh sửa Nhà cung cấp',
+    modalDetailTitle: 'Chi tiết Nhà cung cấp',
+    sectionBasic: 'Thông tin cơ bản',
+    sectionContact: 'Người liên hệ',
+    sectionTaxAddress: 'Địa chỉ',
+    sectionBank: 'Tài khoản ngân hàng',
+
+    codeLabel: 'Mã nhà cung cấp',
+    codePlaceholder: 'Để trống để tự động tạo (NCC-xxx)',
+    nameLabel: 'Tên nhà cung cấp',
+    namePlaceholder: 'Nhập tên nhà cung cấp hoặc công ty...',
+    nameRequired: 'Vui lòng nhập tên nhà cung cấp',
+    nameMax: 'Tên nhà cung cấp không được vượt quá 200 ký tự',
+
+    phoneLabel: 'Số điện thoại',
+    phonePlaceholder: '0901234567...',
+    emailLabel: 'Email',
+    emailPlaceholder: 'supplier@example.com',
+    emailInvalid: 'Địa chỉ email không hợp lệ',
+
+    addressLabel: 'Địa chỉ chi tiết',
+    addressPlaceholder: 'Số nhà, tên đường...',
+    provinceLabel: 'Tỉnh / Thành phố',
+    provincePlaceholder: 'Chọn tỉnh/thành phố',
+    wardLabel: 'Phường / Xã',
+    wardPlaceholder: 'Chọn phường/xã',
+
+    contactPersonLabel: 'Người liên hệ',
+    contactPersonPlaceholder: 'Họ và tên người liên hệ...',
+    contactPhoneLabel: 'SĐT người liên hệ',
+    contactPhonePlaceholder: 'Số điện thoại người liên hệ...',
+
+    bankNameLabel: 'Tên ngân hàng',
+    bankNamePlaceholder: 'Chọn ngân hàng...',
+    bankAccountLabel: 'Số tài khoản',
+    bankAccountPlaceholder: 'Nhập số tài khoản ngân hàng...',
+    bankAccountNameLabel: 'Tên chủ tài khoản',
+    bankAccountNamePlaceholder: 'Tên người thụ hưởng...',
+
+    isActiveLabel: 'Đang hoạt động',
+    noteLabel: 'Ghi chú',
+    notePlaceholder: 'Ghi chú thêm về nhà cung cấp...',
+
+    cancelModal: 'Đóng',
+    submitCreate: 'Thêm nhà cung cấp',
+    submitUpdate: 'Lưu thay đổi',
+    createdAt: 'Ngày tạo',
+    updatedAt: 'Cập nhật',
+    notUpdated: 'Chưa cập nhật',
+  },
   shop: {
     storeName: 'TrucQuy Store',
     home: 'Trang chủ',
@@ -156,4 +251,5 @@ export default {
     welcomeBanner: 'Chào mừng đến TrucQuy Store',
     welcomeDesc: 'Giao diện bán hàng đang được chuẩn bị phát triển.',
   },
-}
+};
+
