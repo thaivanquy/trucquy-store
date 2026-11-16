@@ -15,6 +15,8 @@ export default {
     rememberMe: 'Ghi nhớ',
     forgotPassword: 'Quên mật khẩu?',
     loginButton: 'Đăng nhập',
+    loginSuccess: 'Đăng nhập thành công! Chào mừng bạn quay trở lại.',
+    logoutSuccess: 'Đã đăng xuất thành công. Hẹn gặp lại bạn!',
     loginFailed: 'Đăng nhập không thành công. Vui lòng thử lại!',
     validation: {
       emailRequired: 'Vui lòng nhập email hoặc tài khoản',

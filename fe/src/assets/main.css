@@ -16,3 +16,17 @@ body {
   min-height: 100vh;
   width: 100%;
 }
+
+.ant-message {
+  top: 24px !important;
+}
+
+.ant-message-notice-content {
+  cursor: pointer !important;
+  user-select: none !important;
+  transition: transform 0.15s ease, opacity 0.15s ease !important;
+}
+
+.ant-message-notice-content:hover {
+  transform: scale(0.98);
+}

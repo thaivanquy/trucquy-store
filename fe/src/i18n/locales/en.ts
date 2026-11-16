@@ -15,6 +15,8 @@ export default {
     rememberMe: 'Remember me',
     forgotPassword: 'Forgot password?',
     loginButton: 'Sign In',
+    loginSuccess: 'Signed in successfully! Welcome back.',
+    logoutSuccess: 'Logged out successfully. See you again!',
     loginFailed: 'Login failed. Please try again!',
     validation: {
       emailRequired: 'Please enter email or username',

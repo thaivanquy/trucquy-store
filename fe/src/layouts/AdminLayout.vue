@@ -1,9 +1,20 @@
 <script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
+import { RouterLink, RouterView, useRouter } from 'vue-router'
 import LanguageSwitcher from '@/components/common/LanguageSwitcher.vue'
 import { useI18n } from '@/i18n'
+import { useAuthStore } from '@/features/admin/auth/stores/authStore'
+import { useToast } from '@/composables/useToast'
 
+const router = useRouter()
+const authStore = useAuthStore()
+const toast = useToast()
 const { t } = useI18n()
+
+async function handleLogout() {
+  await authStore.logout()
+  toast.success(t('auth.logoutSuccess'))
+  router.push('/admin/login')
+}
 </script>
 
 <template>
@@ -51,12 +62,13 @@ const { t } = useI18n()
         <div class="text-sm text-slate-500 font-medium">{{ t('admin.systemManagement') }}</div>
         <div class="flex items-center gap-3">
           <LanguageSwitcher />
-          <RouterLink
-            to="/admin/login"
-            class="text-xs text-slate-600 hover:text-slate-900 px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors"
+          <button
+            type="button"
+            @click="handleLogout"
+            class="text-xs text-slate-600 hover:text-slate-900 px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors cursor-pointer"
           >
             {{ t('common.logout') }}
-          </RouterLink>
+          </button>
         </div>
       </header>
 
