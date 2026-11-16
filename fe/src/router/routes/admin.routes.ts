@@ -38,6 +38,16 @@ export const adminRoutes: RouteRecordRaw[] = [
         },
       },
       {
+        path: 'units',
+        name: 'admin-units',
+        component: () => import('@/features/admin/units/views/UnitListView.vue'),
+        meta: {
+          title: 'Quản lý Đơn vị tính',
+          requiresAuth: true,
+          breadcrumbs: ['admin.products', 'admin.units'],
+        },
+      },
+      {
         path: 'suppliers',
         name: 'admin-suppliers',
         component: () => import('@/features/admin/suppliers/views/SupplierListView.vue'),

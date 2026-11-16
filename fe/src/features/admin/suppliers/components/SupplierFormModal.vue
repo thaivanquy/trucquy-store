@@ -407,12 +407,12 @@ async function handleSubmit() {
           </h4>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <div>
+            <div v-if="isEdit">
               <label class="block text-xs font-semibold text-slate-700 mb-1">
                 {{ t('supplier.codeLabel') }}
               </label>
               <a-input
-                :value="form.code || (isEdit ? '' : 'Hệ thống tự động sinh mã')"
+                :value="form.code"
                 readonly
                 disabled
                 size="middle"
@@ -422,7 +422,7 @@ async function handleSubmit() {
               </a-input>
             </div>
 
-            <div>
+            <div :class="{ 'md:col-span-2': !isEdit }">
               <label class="block text-xs font-semibold text-slate-700 mb-1">
                 {{ t('supplier.nameLabel') }} <span class="text-rose-500">*</span>
               </label>

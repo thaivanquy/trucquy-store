@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\Admin\AuthController;
 use App\Http\Controllers\Api\Admin\CategoryController;
 use App\Http\Controllers\Api\Admin\CommonDataController;
 use App\Http\Controllers\Api\Admin\SupplierController;
+use App\Http\Controllers\Api\Admin\UnitController;
 use App\Http\Middleware\Admin\AuthenticateAdminToken;
 use Illuminate\Support\Facades\Route;
 
@@ -25,6 +26,11 @@ Route::middleware(AuthenticateAdminToken::class)->group(function () {
 
     Route::patch('suppliers/{supplier}/toggle-status', [SupplierController::class, 'toggleStatus']);
     Route::apiResource('suppliers', SupplierController::class);
+
+    Route::get('units/stats', [UnitController::class, 'stats']);
+    Route::patch('units/reorder', [UnitController::class, 'reorder']);
+    Route::patch('units/{unit}/toggle-status', [UnitController::class, 'toggleStatus']);
+    Route::apiResource('units', UnitController::class);
 
     Route::get('provinces', [CommonDataController::class, 'getProvinces']);
     Route::get('provinces/{province}/wards', [CommonDataController::class, 'getWards']);

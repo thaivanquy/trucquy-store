@@ -24,6 +24,7 @@ import {
   CheckCircleOutlined,
   WarningOutlined,
   CloseOutlined,
+  DeploymentUnitOutlined,
 } from '@ant-design/icons-vue'
 import LanguageSwitcher from '@/components/common/LanguageSwitcher.vue'
 import AppFooter from '@/components/common/AppFooter.vue'
@@ -47,10 +48,20 @@ const collapsed = ref<boolean>(breakpoints.smaller('lg').value)
 const mobileDrawerOpen = ref<boolean>(false)
 
 const selectedKeys = ref<string[]>([
-  route.name === 'admin-categories' ? 'categories' : route.name === 'admin-suppliers' ? 'suppliers' : 'dashboard',
+  route.name === 'admin-categories'
+    ? 'categories'
+    : route.name === 'admin-units'
+    ? 'units'
+    : route.name === 'admin-suppliers'
+    ? 'suppliers'
+    : 'dashboard',
 ])
 const openKeys = ref<string[]>(
-  route.name === 'admin-categories' ? ['sub-inventory'] : route.name === 'admin-suppliers' ? ['sub-customers'] : [],
+  route.name === 'admin-categories' || route.name === 'admin-units'
+    ? ['sub-inventory']
+    : route.name === 'admin-suppliers'
+    ? ['sub-customers']
+    : [],
 )
 
 interface BreadcrumbItem {
@@ -84,6 +95,13 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => {
     ]
   }
 
+  if (route.name === 'admin-units') {
+    return [
+      { title: t('admin.products') },
+      { title: t('admin.units') },
+    ]
+  }
+
   if (route.name === 'admin-suppliers') {
     return [
       { title: t('admin.customers') },
@@ -99,6 +117,11 @@ watch(
   (name) => {
     if (name === 'admin-categories') {
       selectedKeys.value = ['categories']
+      if (!collapsed.value) {
+        openKeys.value = ['sub-inventory']
+      }
+    } else if (name === 'admin-units') {
+      selectedKeys.value = ['units']
       if (!collapsed.value) {
         openKeys.value = ['sub-inventory']
       }
@@ -149,6 +172,8 @@ function handleMenuSelect({ key }: { key: string }) {
     router.push('/admin/dashboard')
   } else if (key === 'categories') {
     router.push('/admin/categories')
+  } else if (key === 'units') {
+    router.push('/admin/units')
   } else if (key === 'suppliers') {
     router.push('/admin/suppliers')
   } else {
@@ -241,6 +266,10 @@ async function handleLogout() {
               <a-menu-item key="categories">
                 <template #icon><TagsOutlined /></template>
                 <span>{{ t('admin.categories') }}</span>
+              </a-menu-item>
+              <a-menu-item key="units">
+                <template #icon><DeploymentUnitOutlined /></template>
+                <span>{{ t('admin.units') }}</span>
               </a-menu-item>
               <a-menu-item key="inventory">
                 <template #icon><InboxOutlined /></template>
@@ -361,6 +390,10 @@ async function handleLogout() {
               <a-menu-item key="categories">
                 <template #icon><TagsOutlined /></template>
                 <span>{{ t('admin.categories') }}</span>
+              </a-menu-item>
+              <a-menu-item key="units">
+                <template #icon><DeploymentUnitOutlined /></template>
+                <span>{{ t('admin.units') }}</span>
               </a-menu-item>
               <a-menu-item key="inventory">
                 <template #icon><InboxOutlined /></template>

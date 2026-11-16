@@ -62,3 +62,21 @@ export function generateCategoryCode(
 
   return code.toUpperCase()
 }
+
+export function generateUnitCode(
+  name: string,
+  units: { id: number; code: string }[] = []
+): string {
+  const abbr = generateAbbr(name)
+  const baseCode = `DVT-${abbr}`
+  let code = baseCode
+  let counter = 1
+
+  while (units.some((u) => u.code === code)) {
+    code = `${baseCode}-${String(counter).padStart(2, '0')}`
+    counter++
+  }
+
+  return code.toUpperCase()
+}
+
