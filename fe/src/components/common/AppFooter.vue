@@ -14,7 +14,7 @@ const currentYear = new Date().getFullYear()
 <template>
   <footer
     :class="[
-      'relative z-10 w-full text-center py-4 text-xs text-slate-400',
+      'ant-layout-footer !py-3 !px-4 sm:!px-6 !bg-white border-t border-slate-200/80 text-center text-xs text-slate-400 leading-relaxed select-none cursor-default pointer-events-none',
       $props.class,
     ]"
   >

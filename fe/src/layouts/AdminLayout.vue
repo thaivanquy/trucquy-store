@@ -1,14 +1,150 @@
 <script setup lang="ts">
-import { RouterLink, RouterView, useRouter } from 'vue-router'
+import { ref, computed, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import { breakpointsTailwind, useBreakpoints } from '@vueuse/core'
+import {
+  DashboardOutlined,
+  ShoppingCartOutlined,
+  ShoppingOutlined,
+  AppstoreOutlined,
+  TagsOutlined,
+  InboxOutlined,
+  TeamOutlined,
+  ShopOutlined,
+  BarChartOutlined,
+  SettingOutlined,
+  MenuFoldOutlined,
+  MenuUnfoldOutlined,
+  MenuOutlined,
+  LogoutOutlined,
+  UserOutlined,
+  BellOutlined,
+  ExportOutlined,
+  DownOutlined,
+  CheckCircleOutlined,
+  WarningOutlined,
+  CloseOutlined,
+} from '@ant-design/icons-vue'
 import LanguageSwitcher from '@/components/common/LanguageSwitcher.vue'
+import AppFooter from '@/components/common/AppFooter.vue'
 import { useI18n } from '@/i18n'
 import { useAuthStore } from '@/features/admin/auth/stores/authStore'
 import { useToast } from '@/composables/useToast'
 
 const router = useRouter()
+const route = useRoute()
 const authStore = useAuthStore()
 const toast = useToast()
 const { t } = useI18n()
+
+// Responsive breakpoints
+const breakpoints = useBreakpoints(breakpointsTailwind)
+const isMobile = breakpoints.smaller('md') // < 768px
+const isTablet = breakpoints.between('md', 'lg') // 768px - 1024px
+
+// Sider collapse state (for tablet/desktop) & Drawer state (for mobile)
+const collapsed = ref<boolean>(breakpoints.smaller('lg').value)
+const mobileDrawerOpen = ref<boolean>(false)
+
+const selectedKeys = ref<string[]>([route.name === 'admin-categories' ? 'categories' : 'dashboard'])
+const openKeys = ref<string[]>(route.name === 'admin-categories' ? ['sub-inventory'] : [])
+
+interface BreadcrumbItem {
+  title: string
+  to?: string
+}
+
+const breadcrumbs = computed<BreadcrumbItem[]>(() => {
+  const metaCrumbs = (route.meta?.breadcrumbs || route.meta?.breadcrumb) as
+    | Array<string | { title?: string; labelKey?: string; to?: string }>
+    | undefined
+
+  if (metaCrumbs && Array.isArray(metaCrumbs)) {
+    return metaCrumbs.map((item) => {
+      if (typeof item === 'string') {
+        return {
+          title: t(item),
+        }
+      }
+      return {
+        title: item.labelKey ? t(item.labelKey) : item.title || '',
+        to: item.to,
+      }
+    })
+  }
+
+  if (route.name === 'admin-categories') {
+    return [
+      { title: t('admin.products') },
+      { title: t('admin.categories') },
+    ]
+  }
+
+  return [{ title: t('admin.dashboard') }]
+})
+
+watch(
+  () => route.name,
+  (name) => {
+    if (name === 'admin-categories') {
+      selectedKeys.value = ['categories']
+      if (!collapsed.value) {
+        openKeys.value = ['sub-inventory']
+      }
+    } else if (name === 'admin-dashboard') {
+      selectedKeys.value = ['dashboard']
+    }
+  },
+  { immediate: true }
+)
+
+const currentUserName = computed(() => authStore.user?.name || 'Admin TrucQuy')
+const currentUserEmail = computed(() => authStore.user?.email || 'admin@trucquy.vn')
+
+// Sync collapse with tablet resize
+watch(isTablet, (val) => {
+  if (val) {
+    collapsed.value = true
+  }
+})
+
+// Close mobile drawer when route changes or screen gets larger
+watch(isMobile, (mobile) => {
+  if (!mobile) {
+    mobileDrawerOpen.value = false
+  }
+})
+
+// Custom Ant Design theme matching the primary sky blue color of the login button
+const themeConfig = {
+  token: {
+    colorPrimary: '#0ea5e9', // Sky 500 (login button primary)
+    colorInfo: '#0ea5e9',
+    borderRadius: 8,
+    fontFamily: 'inherit',
+  },
+}
+
+function handleMenuSelect({ key }: { key: string }) {
+  if (isMobile.value) {
+    mobileDrawerOpen.value = false
+  }
+  if (key === 'dashboard') {
+    router.push('/admin/dashboard')
+  } else if (key === 'categories') {
+    router.push('/admin/categories')
+  } else {
+    toast.info(`${t('admin.overview')} - Tính năng đang phát triển`)
+  }
+}
+
+function toggleSidebar() {
+  if (isMobile.value) {
+    mobileDrawerOpen.value = !mobileDrawerOpen.value
+  } else {
+    collapsed.value = !collapsed.value
+  }
+}
 
 async function handleLogout() {
   await authStore.logout()
@@ -18,63 +154,441 @@ async function handleLogout() {
 </script>
 
 <template>
-  <div class="flex h-screen bg-slate-50 overflow-hidden">
-    <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col shrink-0">
-      <div class="h-16 flex items-center gap-3 px-6 border-b border-slate-800">
-        <div class="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-white font-bold text-sm">
-          TQ
+  <a-config-provider :theme="themeConfig">
+    <a-layout class="h-screen overflow-hidden bg-slate-100 flex flex-row">
+      <!-- Desktop & Tablet Sider (hidden on mobile < 768px) -->
+      <a-layout-sider
+        v-if="!isMobile"
+        v-model:collapsed="collapsed"
+        :trigger="null"
+        collapsible
+        :width="240"
+        :collapsedWidth="72"
+        class="admin-sider !bg-slate-900 shadow-xl shrink-0 z-30 h-screen flex flex-col"
+      >
+        <!-- Logo Area -->
+        <div class="h-16 shrink-0 flex items-center px-4 border-b border-slate-800 transition-all duration-300">
+          <div class="flex items-center gap-3 overflow-hidden w-full" :class="{ 'justify-center': collapsed }">
+            <div
+              class="w-9 h-9 rounded-xl bg-gradient-to-tr from-sky-500 to-sky-400 flex items-center justify-center text-white font-black text-sm shrink-0 shadow-md shadow-sky-500/30"
+            >
+              TQ
+            </div>
+            <div v-if="!collapsed" class="flex flex-col min-w-0 transition-opacity duration-200">
+              <span class="font-bold text-white tracking-tight truncate text-base leading-tight">
+                {{ t('common.brandName') }}
+              </span>
+              <span class="text-[10px] text-sky-400 font-semibold tracking-wider uppercase mt-0.5">
+                {{ t('common.adminPortal') }}
+              </span>
+            </div>
+          </div>
         </div>
-        <div>
-          <span class="font-bold text-white tracking-tight">{{ t('common.brandName') }}</span>
-          <span class="block text-[10px] text-emerald-400 font-medium">{{ t('common.adminPortal') }}</span>
+
+        <!-- Navigation Menu -->
+        <div class="flex-1 overflow-y-auto overflow-x-hidden py-3 admin-sider-scroll">
+          <a-menu
+            v-model:selectedKeys="selectedKeys"
+            v-model:openKeys="openKeys"
+            theme="dark"
+            :mode="collapsed ? 'vertical' : 'inline'"
+            class="!bg-transparent !border-r-0 admin-menu"
+            @select="handleMenuSelect"
+          >
+            <a-menu-item key="dashboard">
+              <template #icon><DashboardOutlined /></template>
+              <span>{{ t('admin.dashboard') }}</span>
+            </a-menu-item>
+
+            <a-sub-menu key="sub-sales">
+              <template #icon><ShoppingCartOutlined /></template>
+              <template #title>{{ t('admin.orders') }}</template>
+              <a-menu-item key="orders-list">
+                <template #icon><ShoppingCartOutlined /></template>
+                <span>{{ t('admin.orders') }}</span>
+              </a-menu-item>
+              <a-menu-item key="pos">
+                <template #icon><ShoppingOutlined /></template>
+                <span>{{ t('admin.pos') }}</span>
+              </a-menu-item>
+            </a-sub-menu>
+
+            <a-sub-menu key="sub-inventory">
+              <template #icon><AppstoreOutlined /></template>
+              <template #title>{{ t('admin.products') }}</template>
+              <a-menu-item key="products-list">
+                <template #icon><AppstoreOutlined /></template>
+                <span>{{ t('admin.products') }}</span>
+              </a-menu-item>
+              <a-menu-item key="categories">
+                <template #icon><TagsOutlined /></template>
+                <span>{{ t('admin.categories') }}</span>
+              </a-menu-item>
+              <a-menu-item key="inventory">
+                <template #icon><InboxOutlined /></template>
+                <span>{{ t('admin.inventory') }}</span>
+              </a-menu-item>
+            </a-sub-menu>
+
+            <a-sub-menu key="sub-customers">
+              <template #icon><TeamOutlined /></template>
+              <template #title>{{ t('admin.customers') }}</template>
+              <a-menu-item key="customers-list">
+                <template #icon><TeamOutlined /></template>
+                <span>{{ t('admin.customers') }}</span>
+              </a-menu-item>
+              <a-menu-item key="suppliers">
+                <template #icon><ShopOutlined /></template>
+                <span>{{ t('admin.suppliers') }}</span>
+              </a-menu-item>
+            </a-sub-menu>
+
+            <a-menu-item key="reports">
+              <template #icon><BarChartOutlined /></template>
+              <span>{{ t('admin.reports') }}</span>
+            </a-menu-item>
+
+            <a-menu-item key="settings">
+              <template #icon><SettingOutlined /></template>
+              <span>{{ t('admin.settings') }}</span>
+            </a-menu-item>
+          </a-menu>
         </div>
-      </div>
 
-      <nav class="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
-        <RouterLink
-          to="/admin/dashboard"
-          class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors"
-          active-class="bg-emerald-500/10 text-emerald-400 font-semibold"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-          </svg>
-          {{ t('admin.dashboard') }}
-        </RouterLink>
-      </nav>
+        <!-- Sidebar Bottom Footer -->
+        <div class="p-3 border-t border-slate-800 bg-slate-900/60 shrink-0">
+          <a
+            href="/"
+            target="_blank"
+            class="flex items-center gap-2.5 px-3 py-2 text-xs text-slate-400 hover:text-sky-400 hover:bg-slate-800/80 rounded-lg transition-colors group"
+            :class="{ 'justify-center': collapsed }"
+            :title="t('common.viewStorefront')"
+          >
+            <ExportOutlined class="text-sm shrink-0 group-hover:scale-110 transition-transform" />
+            <span v-if="!collapsed" class="truncate">{{ t('common.viewStorefront') }}</span>
+          </a>
+        </div>
+      </a-layout-sider>
 
-      <div class="p-4 border-t border-slate-800">
-        <RouterLink
-          to="/"
-          target="_blank"
-          class="flex items-center justify-center gap-2 w-full py-2 px-3 text-xs text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors"
-        >
-          <span>{{ t('common.viewStorefront') }}</span>
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-          </svg>
-        </RouterLink>
-      </div>
-    </aside>
-
-    <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
-      <header class="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between shrink-0 relative z-20">
-        <div class="text-sm text-slate-500 font-medium">{{ t('admin.systemManagement') }}</div>
-        <div class="flex items-center gap-3">
-          <LanguageSwitcher />
+      <!-- Mobile Drawer Sider (only for mobile < 768px) -->
+      <a-drawer
+        v-if="isMobile"
+        v-model:open="mobileDrawerOpen"
+        placement="left"
+        :closable="false"
+        :width="260"
+        :bodyStyle="{ padding: 0, backgroundColor: '#0f172a', display: 'flex', flexDirection: 'column', height: '100%' }"
+      >
+        <!-- Mobile Drawer Header -->
+        <div class="h-16 flex items-center justify-between px-5 border-b border-slate-800">
+          <div class="flex items-center gap-3">
+            <div
+              class="w-8 h-8 rounded-xl bg-gradient-to-tr from-sky-500 to-sky-400 flex items-center justify-center text-white font-bold text-sm shadow-md shadow-sky-500/30"
+            >
+              TQ
+            </div>
+            <div>
+              <span class="font-bold text-white tracking-tight text-sm block leading-tight">
+                {{ t('common.brandName') }}
+              </span>
+              <span class="text-[10px] text-sky-400 font-semibold tracking-wider uppercase">
+                {{ t('common.adminPortal') }}
+              </span>
+            </div>
+          </div>
           <button
             type="button"
-            @click="handleLogout"
-            class="text-xs text-slate-600 hover:text-slate-900 px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors cursor-pointer"
+            @click="mobileDrawerOpen = false"
+            class="w-8 h-8 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 flex items-center justify-center cursor-pointer"
           >
-            {{ t('common.logout') }}
+            <CloseOutlined class="text-sm" />
           </button>
         </div>
-      </header>
 
-      <main class="flex-1 overflow-y-auto p-6">
-        <RouterView />
-      </main>
-    </div>
-  </div>
+        <!-- Mobile Drawer Menu -->
+        <div class="flex-1 overflow-y-auto py-3">
+          <a-menu
+            v-model:selectedKeys="selectedKeys"
+            v-model:openKeys="openKeys"
+            theme="dark"
+            mode="inline"
+            class="!bg-transparent !border-r-0 admin-menu"
+            @select="handleMenuSelect"
+          >
+            <a-menu-item key="dashboard">
+              <template #icon><DashboardOutlined /></template>
+              <span>{{ t('admin.dashboard') }}</span>
+            </a-menu-item>
+
+            <a-sub-menu key="sub-sales">
+              <template #icon><ShoppingCartOutlined /></template>
+              <template #title>{{ t('admin.orders') }}</template>
+              <a-menu-item key="orders-list">
+                <template #icon><ShoppingCartOutlined /></template>
+                <span>{{ t('admin.orders') }}</span>
+              </a-menu-item>
+              <a-menu-item key="pos">
+                <template #icon><ShoppingOutlined /></template>
+                <span>{{ t('admin.pos') }}</span>
+              </a-menu-item>
+            </a-sub-menu>
+
+            <a-sub-menu key="sub-inventory">
+              <template #icon><AppstoreOutlined /></template>
+              <template #title>{{ t('admin.products') }}</template>
+              <a-menu-item key="products-list">
+                <template #icon><AppstoreOutlined /></template>
+                <span>{{ t('admin.products') }}</span>
+              </a-menu-item>
+              <a-menu-item key="categories">
+                <template #icon><TagsOutlined /></template>
+                <span>{{ t('admin.categories') }}</span>
+              </a-menu-item>
+              <a-menu-item key="inventory">
+                <template #icon><InboxOutlined /></template>
+                <span>{{ t('admin.inventory') }}</span>
+              </a-menu-item>
+            </a-sub-menu>
+
+            <a-sub-menu key="sub-customers">
+              <template #icon><TeamOutlined /></template>
+              <template #title>{{ t('admin.customers') }}</template>
+              <a-menu-item key="customers-list">
+                <template #icon><TeamOutlined /></template>
+                <span>{{ t('admin.customers') }}</span>
+              </a-menu-item>
+              <a-menu-item key="suppliers">
+                <template #icon><ShopOutlined /></template>
+                <span>{{ t('admin.suppliers') }}</span>
+              </a-menu-item>
+            </a-sub-menu>
+
+            <a-menu-item key="reports">
+              <template #icon><BarChartOutlined /></template>
+              <span>{{ t('admin.reports') }}</span>
+            </a-menu-item>
+
+            <a-menu-item key="settings">
+              <template #icon><SettingOutlined /></template>
+              <span>{{ t('admin.settings') }}</span>
+            </a-menu-item>
+          </a-menu>
+        </div>
+
+        <!-- Mobile Drawer Footer -->
+        <div class="p-4 border-t border-slate-800 bg-slate-900/80">
+          <a
+            href="/"
+            target="_blank"
+            class="flex items-center gap-2.5 px-3 py-2 text-xs text-slate-400 hover:text-sky-400 hover:bg-slate-800 rounded-lg transition-colors"
+          >
+            <ExportOutlined class="text-sm shrink-0" />
+            <span>{{ t('common.viewStorefront') }}</span>
+          </a>
+        </div>
+      </a-drawer>
+
+      <!-- Main Layout Body -->
+      <a-layout class="bg-slate-100 flex flex-col flex-1 min-w-0 min-h-0 h-screen overflow-hidden">
+        <!-- Top Header with explicit normal line-height to prevent CSS inheritance bugs -->
+        <a-layout-header
+          class="!bg-white !px-3 sm:!px-6 !h-16 shrink-0 flex items-center justify-between border-b border-slate-200/80 z-20 shadow-xs admin-header leading-normal"
+        >
+          <!-- Left side: Toggle button + Brand (mobile) / Breadcrumb (desktop) -->
+          <div class="flex items-center gap-2.5 sm:gap-4">
+            <button
+              type="button"
+              class="w-9 h-9 flex items-center justify-center rounded-lg text-slate-600 hover:text-sky-600 hover:bg-slate-100 transition-colors cursor-pointer shrink-0"
+              @click="toggleSidebar"
+              :aria-label="isMobile ? 'Open mobile menu' : collapsed ? 'Expand menu' : 'Collapse menu'"
+            >
+              <MenuOutlined v-if="isMobile" class="text-lg" />
+              <MenuUnfoldOutlined v-else-if="collapsed" class="text-lg" />
+              <MenuFoldOutlined v-else class="text-lg" />
+            </button>
+
+            <!-- Brand on Mobile -->
+            <div v-if="isMobile" class="flex items-center gap-2">
+              <div
+                class="w-7 h-7 rounded-lg bg-gradient-to-tr from-sky-500 to-sky-400 flex items-center justify-center text-white font-bold text-xs shadow-xs"
+              >
+                TQ
+              </div>
+              <span class="font-bold text-slate-800 text-sm tracking-tight truncate">
+                {{ t('common.brandName') }}
+              </span>
+            </div>
+
+            <!-- Breadcrumb on Tablet/Desktop -->
+            <a-breadcrumb class="hidden md:inline-flex text-xs font-medium leading-normal">
+              <a-breadcrumb-item>
+                <router-link to="/admin/dashboard" class="text-slate-500 hover:text-sky-600">
+                  {{ t('admin.systemManagement') }}
+                </router-link>
+              </a-breadcrumb-item>
+              <a-breadcrumb-item
+                v-for="(item, index) in breadcrumbs"
+                :key="index"
+              >
+                <router-link
+                  v-if="item.to && index < breadcrumbs.length - 1"
+                  :to="item.to"
+                  class="text-slate-500 hover:text-sky-600"
+                >
+                  {{ item.title }}
+                </router-link>
+                <span
+                  v-else
+                  :class="index === breadcrumbs.length - 1 ? 'text-slate-800 font-semibold' : 'text-slate-500'"
+                >
+                  {{ item.title }}
+                </span>
+              </a-breadcrumb-item>
+            </a-breadcrumb>
+          </div>
+
+          <!-- Right side: Notifications + Language Switcher + User Profile -->
+          <div class="flex items-center gap-2 sm:gap-3 leading-normal">
+            <!-- Notifications Popover -->
+            <a-popover placement="bottomRight" trigger="click">
+              <template #title>
+                <div class="flex items-center justify-between py-1 leading-normal">
+                  <span class="font-bold text-sm text-slate-800">Thông báo mới</span>
+                  <a-tag color="processing" class="!mr-0 !bg-sky-50 !text-sky-600 !border-sky-200">3 mới</a-tag>
+                </div>
+              </template>
+              <template #content>
+                <div class="w-72 max-w-[85vw] divide-y divide-slate-100 max-h-80 overflow-y-auto leading-normal">
+                  <div class="py-2.5 flex items-start gap-2.5 hover:bg-slate-50 p-2 rounded-lg cursor-pointer">
+                    <CheckCircleOutlined class="text-sky-500 text-base mt-0.5 shrink-0" />
+                    <div>
+                      <p class="text-xs font-semibold text-slate-800 leading-snug">Đơn hàng mới #TQ-1082</p>
+                      <p class="text-[11px] text-slate-400 mt-0.5">Vừa đặt thành công • 385.000 ₫</p>
+                    </div>
+                  </div>
+                  <div class="py-2.5 flex items-start gap-2.5 hover:bg-slate-50 p-2 rounded-lg cursor-pointer">
+                    <WarningOutlined class="text-amber-500 text-base mt-0.5 shrink-0" />
+                    <div>
+                      <p class="text-xs font-semibold text-slate-800 leading-snug">Cảnh báo tồn kho</p>
+                      <p class="text-[11px] text-slate-400 mt-0.5">Sữa tươi Vinamilk 1L chỉ còn 3 hộp</p>
+                    </div>
+                  </div>
+                  <div class="py-2.5 flex items-start gap-2.5 hover:bg-slate-50 p-2 rounded-lg cursor-pointer">
+                    <CheckCircleOutlined class="text-emerald-500 text-base mt-0.5 shrink-0" />
+                    <div>
+                      <p class="text-xs font-semibold text-slate-800 leading-snug">Khách hàng mới</p>
+                      <p class="text-[11px] text-slate-400 mt-0.5">Nguyễn Văn An vừa mở tài khoản</p>
+                    </div>
+                  </div>
+                </div>
+              </template>
+              <button
+                type="button"
+                class="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-lg text-slate-500 hover:text-sky-600 hover:bg-slate-100 transition-colors cursor-pointer relative"
+                aria-label="Thông báo"
+              >
+                <a-badge :count="3" :offset="[2, -2]">
+                  <BellOutlined class="text-base sm:text-lg text-slate-600" />
+                </a-badge>
+              </button>
+            </a-popover>
+
+            <!-- Language Switcher Component -->
+            <LanguageSwitcher />
+
+            <!-- User Profile Dropdown -->
+            <a-dropdown placement="bottomRight" :trigger="['click']">
+              <div
+                class="flex items-center gap-2 pl-1.5 py-1 pr-1.5 rounded-full hover:bg-slate-100 cursor-pointer transition-colors border border-transparent hover:border-slate-200 select-none"
+              >
+                <a-avatar
+                  size="small"
+                  class="!bg-gradient-to-tr !from-sky-500 !to-sky-400 !text-white font-semibold shadow-xs shrink-0"
+                >
+                  <template #icon><UserOutlined /></template>
+                </a-avatar>
+                <div class="hidden sm:flex flex-col text-left">
+                  <span class="text-xs font-semibold text-slate-800 leading-tight max-w-[110px] md:max-w-[140px] truncate">
+                    {{ currentUserName }}
+                  </span>
+                  <span class="text-[10px] text-sky-600 font-medium leading-none mt-0.5">
+                    {{ t('admin.adminRole') }}
+                  </span>
+                </div>
+                <DownOutlined class="text-[10px] text-slate-400 hidden sm:inline-block" />
+              </div>
+
+              <template #overlay>
+                <a-menu class="w-56 !rounded-xl !p-2 !shadow-lg leading-normal">
+                  <div class="px-3 py-2 border-b border-slate-100 mb-1">
+                    <p class="text-xs font-bold text-slate-800 truncate">{{ currentUserName }}</p>
+                    <p class="text-[11px] text-slate-400 truncate mt-0.5">{{ currentUserEmail }}</p>
+                  </div>
+
+                  <a-menu-item key="user-profile" @click="toast.info('Tính năng đang phát triển')">
+                    <template #icon><UserOutlined /></template>
+                    <span>{{ t('admin.profile') }}</span>
+                  </a-menu-item>
+
+                  <a-menu-item key="user-settings" @click="toast.info('Tính năng đang phát triển')">
+                    <template #icon><SettingOutlined /></template>
+                    <span>{{ t('admin.settings') }}</span>
+                  </a-menu-item>
+
+                  <a-menu-divider />
+
+                  <a-menu-item key="user-logout" danger @click="handleLogout">
+                    <template #icon><LogoutOutlined /></template>
+                    <span>{{ t('common.logout') }}</span>
+                  </a-menu-item>
+                </a-menu>
+              </template>
+            </a-dropdown>
+          </div>
+        </a-layout-header>
+
+        <!-- Main Content View Container -->
+        <a-layout-content class="flex-1 min-h-0 overflow-y-auto overflow-x-hidden min-w-0 flex flex-col admin-main-scroll">
+          <div class="p-3 sm:p-5 md:p-6 pb-16 sm:pb-24 flex-1 min-h-[calc(100vh-64px-52px)]">
+            <RouterView />
+          </div>
+
+        </a-layout-content>
+      </a-layout>
+    </a-layout>
+  </a-config-provider>
 </template>
+
+<style scoped>
+.admin-sider {
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-header {
+  line-height: normal !important;
+}
+
+:deep(.admin-menu.ant-menu-dark) {
+  background: transparent !important;
+}
+
+:deep(.admin-menu.ant-menu-dark .ant-menu-item-selected) {
+  background-color: #0ea5e9 !important;
+  color: #ffffff !important;
+  border-radius: 10px;
+  margin-left: 8px;
+  margin-right: 8px;
+  width: calc(100% - 16px);
+}
+
+:deep(.admin-menu.ant-menu-dark .ant-menu-item),
+:deep(.admin-menu.ant-menu-dark .ant-menu-submenu-title) {
+  border-radius: 10px;
+  margin-left: 8px;
+  margin-right: 8px;
+  width: calc(100% - 16px);
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+</style>

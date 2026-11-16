@@ -132,17 +132,17 @@ const {
       <button
         type="submit"
         :disabled="isLoading"
-        class="group w-full mt-2 py-3 px-4 bg-sky-400 hover:bg-sky-500 active:bg-sky-600 text-white font-medium rounded-xl shadow-md shadow-sky-400/25 flex items-center justify-center gap-2 transition-all duration-200 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed text-sm sm:text-base"
+        class="login-btn group w-full mt-2 py-3 px-4 bg-sky-400 hover:bg-sky-500 active:bg-sky-600 !text-white font-medium rounded-xl shadow-md shadow-sky-400/25 flex items-center justify-center gap-2 transition-all duration-200 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed text-sm sm:text-base"
       >
         <svg v-if="isLoading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
         </svg>
-        <span>{{ t('auth.loginButton') }}</span>
+        <span class="!text-white font-medium">{{ t('auth.loginButton') }}</span>
         <svg
           v-if="!isLoading"
           xmlns="http://www.w3.org/2000/svg"
-          class="w-4.5 h-4.5 transition-transform duration-200 ease-out group-hover:translate-x-1.5"
+          class="w-4.5 h-4.5 transition-transform duration-200 ease-out group-hover:translate-x-1.5 !text-white text-white"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -157,3 +157,11 @@ const {
     </form>
   </div>
 </template>
+
+<style scoped>
+.login-btn,
+.login-btn span,
+.login-btn svg {
+  color: #ffffff !important;
+}
+</style>

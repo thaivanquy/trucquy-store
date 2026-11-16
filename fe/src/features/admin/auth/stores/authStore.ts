@@ -5,7 +5,16 @@ import type { LoginFormData } from '../types'
 
 export const useAuthStore = defineStore('auth', () => {
   const token = ref<string | null>(localStorage.getItem('token') || sessionStorage.getItem('token'))
-  const user = ref<{ id: number; name: string; email: string } | null>(null)
+  const user = ref<{ id: number; name: string; email: string } | null>(
+    (() => {
+      try {
+        const stored = localStorage.getItem('user') || sessionStorage.getItem('user')
+        return stored ? JSON.parse(stored) : null
+      } catch {
+        return null
+      }
+    })()
+  )
   const isLoading = ref<boolean>(false)
   const errorMessage = ref<string | null>(null)
 
@@ -18,8 +27,10 @@ export const useAuthStore = defineStore('auth', () => {
       user.value = data.user
       if (credentials.remember) {
         localStorage.setItem('token', data.token)
+        localStorage.setItem('user', JSON.stringify(data.user))
       } else {
         sessionStorage.setItem('token', data.token)
+        sessionStorage.setItem('user', JSON.stringify(data.user))
       }
       return data
     } catch (err: unknown) {
@@ -40,6 +51,8 @@ export const useAuthStore = defineStore('auth', () => {
       user.value = null
       localStorage.removeItem('token')
       sessionStorage.removeItem('token')
+      localStorage.removeItem('user')
+      sessionStorage.removeItem('user')
     }
   }
 

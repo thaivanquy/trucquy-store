@@ -24,6 +24,17 @@ export const adminRoutes: RouteRecordRaw[] = [
         meta: {
           title: 'Tổng quan quản trị',
           requiresAuth: true,
+          breadcrumbs: ['admin.dashboard'],
+        },
+      },
+      {
+        path: 'categories',
+        name: 'admin-categories',
+        component: () => import('@/features/admin/categories/views/CategoryListView.vue'),
+        meta: {
+          title: 'Quản lý Danh mục',
+          requiresAuth: true,
+          breadcrumbs: ['admin.products', 'admin.categories'],
         },
       },
     ],

@@ -45,6 +45,6 @@ const { t } = useI18n()
       <LoginForm />
     </main>
 
-    <AppFooter />
+    <AppFooter class="!bg-transparent !border-t-0" />
   </div>
 </template>

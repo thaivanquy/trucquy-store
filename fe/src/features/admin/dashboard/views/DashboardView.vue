@@ -1,39 +1,629 @@
 <script setup lang="ts">
+import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
+import { breakpointsTailwind, useBreakpoints } from '@vueuse/core'
+import {
+  DollarCircleOutlined,
+  ShoppingCartOutlined,
+  AppstoreOutlined,
+  TeamOutlined,
+  ArrowUpOutlined,
+  PlusOutlined,
+  ReloadOutlined,
+  DownloadOutlined,
+  ClockCircleOutlined,
+  WarningOutlined,
+  EyeOutlined,
+  ShopOutlined,
+  BarcodeOutlined,
+  CheckCircleOutlined,
+  FileTextOutlined,
+  TagsOutlined,
+} from '@ant-design/icons-vue'
 import { useI18n } from '@/i18n'
+import { useAuthStore } from '@/features/admin/auth/stores/authStore'
+import { useToast } from '@/composables/useToast'
 
+const router = useRouter()
 const { t } = useI18n()
+const authStore = useAuthStore()
+const toast = useToast()
+
+const breakpoints = useBreakpoints(breakpointsTailwind)
+const isMobile = breakpoints.smaller('md')
+
+const selectedPeriod = ref<string>('today')
+const isRefreshing = ref<boolean>(false)
+const selectedOrder = ref<any>(null)
+const isModalVisible = ref<boolean>(false)
+
+const currentUserName = computed(() => authStore.user?.name || 'Quản trị viên')
+
+function refreshData() {
+  isRefreshing.value = true
+  setTimeout(() => {
+    isRefreshing.value = false
+    toast.success('Dữ liệu bảng điều khiển đã được cập nhật mới nhất!')
+  }, 600)
+}
+
+function handleQuickAction(actionName: string) {
+  toast.info(`Tính năng "${actionName}" đang được chuẩn bị ra mắt!`)
+}
+
+function viewOrderDetail(record: any) {
+  selectedOrder.value = record
+  isModalVisible.value = true
+}
+
+// Recent orders mock data
+const recentOrders = ref([
+  {
+    key: '1',
+    code: '#TQ-1082',
+    customer: 'Trần Thị Mai',
+    phone: '0987***321',
+    items: 'Gạo ST25 (5kg), Dầu ăn Simply 1L, Nước mắm Nam Ngư',
+    total: '385.000 ₫',
+    paymentMethod: 'VietQR',
+    status: 'completed',
+    statusText: 'Hoàn thành',
+    statusColor: 'success',
+    time: '10 phút trước',
+  },
+  {
+    key: '2',
+    code: '#TQ-1081',
+    customer: 'Nguyễn Văn Minh',
+    phone: '0912***654',
+    items: '2x Thùng bia Tiger Crystal, 1kg Lạc rang',
+    total: '840.000 ₫',
+    paymentMethod: 'Tiền mặt',
+    status: 'shipping',
+    statusText: 'Đang giao',
+    statusColor: 'processing',
+    time: '25 phút trước',
+  },
+  {
+    key: '3',
+    code: '#TQ-1080',
+    customer: 'Lê Hoàng Yến',
+    phone: '0978***112',
+    items: 'Sữa tươi TH True Milk (Thùng 48 hộp), Bánh Chocopie',
+    total: '495.000 ₫',
+    paymentMethod: 'MoMo',
+    status: 'pending',
+    statusText: 'Chờ xử lý',
+    statusColor: 'warning',
+    time: '42 phút trước',
+  },
+  {
+    key: '4',
+    code: '#TQ-1079',
+    customer: 'Phạm Thanh Tùng',
+    phone: '0903***889',
+    items: 'Nước rửa chén Sunlight 3.8kg, Bột giặt Omo 5kg',
+    total: '310.000 ₫',
+    paymentMethod: 'VietQR',
+    status: 'completed',
+    statusText: 'Hoàn thành',
+    statusColor: 'success',
+    time: '1 giờ trước',
+  },
+  {
+    key: '5',
+    code: '#TQ-1078',
+    customer: 'Hoàng Kim Dung',
+    phone: '0965***443',
+    items: 'Mì ăn liền Hảo Hảo (1 thùng), Trứng gà Ba Huân (30 quả)',
+    total: '215.000 ₫',
+    paymentMethod: 'Tiền mặt',
+    status: 'completed',
+    statusText: 'Hoàn thành',
+    statusColor: 'success',
+    time: '2 giờ trước',
+  },
+])
+
+// Low stock mock data
+const lowStockProducts = ref([
+  {
+    id: 1,
+    name: 'Sữa tươi Vinamilk Không đường 1L',
+    stock: 3,
+    minStock: 20,
+    percent: 15,
+    unit: 'hộp',
+  },
+  {
+    id: 2,
+    name: 'Dầu đậu nành Simply 1L',
+    stock: 5,
+    minStock: 25,
+    percent: 20,
+    unit: 'chai',
+  },
+  {
+    id: 3,
+    name: 'Gạo ST25 Thơm Thượng Hạng 5kg',
+    stock: 2,
+    minStock: 15,
+    percent: 13,
+    unit: 'túi',
+  },
+  {
+    id: 4,
+    name: 'Nước tương Tam Thái Tử Nhất Ca 500ml',
+    stock: 6,
+    minStock: 30,
+    percent: 20,
+    unit: 'chai',
+  },
+])
+
+// Category sales performance
+const categorySales = [
+  { name: 'Thực phẩm khô & Gia vị', percent: 45, color: '#0ea5e9', amount: '2.100.000 ₫' },
+  { name: 'Bia, Nước ngọt & Đồ uống', percent: 28, color: '#38bdf8', amount: '1.310.000 ₫' },
+  { name: 'Hóa mỹ phẩm & Tẩy rửa', percent: 17, color: '#8b5cf6', amount: '795.000 ₫' },
+  { name: 'Bánh kẹo & Đồ ăn vặt', percent: 10, color: '#f59e0b', amount: '475.000 ₫' },
+]
+
+const orderColumns = [
+  { title: 'Mã đơn', dataIndex: 'code', key: 'code', width: 110 },
+  { title: 'Khách hàng', dataIndex: 'customer', key: 'customer', width: 140 },
+  { title: 'Sản phẩm', dataIndex: 'items', key: 'items', ellipsis: true },
+  { title: 'Tổng tiền', dataIndex: 'total', key: 'total', width: 110 },
+  { title: 'Thanh toán', dataIndex: 'paymentMethod', key: 'paymentMethod', width: 105 },
+  { title: 'Trạng thái', dataIndex: 'status', key: 'status', width: 110 },
+  { title: 'Thao tác', key: 'action', width: 70, align: 'center' as const, fixed: 'right' as const },
+]
 </script>
 
 <template>
-  <div class="space-y-6">
-    <div class="flex items-center justify-between">
+  <div class="space-y-4 sm:space-y-6 max-w-full">
+    <!-- Top Welcome Banner & Controls -->
+    <div
+      class="bg-white rounded-2xl p-4 sm:p-5 md:p-6 border border-slate-200/80 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4"
+    >
       <div>
-        <h1 class="text-2xl font-bold text-slate-800">{{ t('admin.overview') }}</h1>
-        <p class="text-sm text-slate-500 mt-1">{{ t('admin.welcome') }}</p>
+        <div class="flex items-center gap-2 flex-wrap">
+          <h1 class="text-lg sm:text-xl md:text-2xl font-bold text-slate-800 tracking-tight leading-tight">
+            {{ t('admin.overview') }}
+          </h1>
+          <a-tag color="processing" class="!rounded-full !px-2.5 !py-0.5 !text-xs !border-0 !bg-sky-50 !text-sky-700 font-semibold">
+            ● Trực tuyến
+          </a-tag>
+        </div>
+        <p class="text-xs sm:text-sm text-slate-500 mt-1">
+          Xin chào, <span class="font-semibold text-slate-700">{{ currentUserName }}</span>! {{ t('admin.welcome') }}
+        </p>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2 sm:gap-2.5">
+        <a-segmented
+          v-model:value="selectedPeriod"
+          :options="[
+            { label: 'Hôm nay', value: 'today' },
+            { label: '7 ngày', value: 'week' },
+            { label: 'Tháng', value: 'month' },
+          ]"
+          class="shrink-0"
+        />
+
+        <a-button
+          :loading="isRefreshing"
+          @click="refreshData"
+          class="!flex !items-center !gap-1.5 !rounded-lg text-xs sm:text-sm"
+        >
+          <template #icon><ReloadOutlined /></template>
+          <span class="hidden sm:inline">Làm mới</span>
+        </a-button>
+
+        <a-button
+          type="primary"
+          @click="handleQuickAction(t('admin.newOrderBtn'))"
+          class="!bg-sky-400 hover:!bg-sky-500 active:!bg-sky-600 !flex !items-center !gap-1.5 !rounded-lg !border-none !shadow-md !shadow-sky-400/25 font-medium text-xs sm:text-sm"
+        >
+          <template #icon><PlusOutlined /></template>
+          <span>{{ t('admin.newOrderBtn') }}</span>
+        </a-button>
       </div>
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-      <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
-        <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">{{ t('admin.todayRevenue') }}</p>
-        <p class="text-2xl font-bold text-slate-800 mt-2">0 ₫</p>
-        <span class="text-xs text-emerald-600 font-medium mt-1 inline-block">{{ t('admin.todayRevenueGrowth') }}</span>
+    <!-- 4 Key Metric Cards (Responsive: 1 col on mobile, 2 on tablet, 4 on desktop) -->
+    <a-row :gutter="[12, 12]">
+      <!-- Metric 1: Doanh thu -->
+      <a-col :xs="24" :sm="12" :lg="6">
+        <a-card :bordered="false" class="!rounded-2xl !shadow-xs hover:!shadow-md transition-shadow">
+          <div class="flex items-start justify-between">
+            <div class="min-w-0">
+              <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1 truncate">
+                {{ t('admin.todayRevenue') }}
+              </p>
+              <div class="text-xl sm:text-2xl font-black text-slate-800 leading-none truncate">
+                4.680.000 <span class="text-xs sm:text-sm font-semibold text-slate-500">₫</span>
+              </div>
+            </div>
+            <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-sky-50 flex items-center justify-center text-sky-500 text-lg sm:text-xl shadow-xs shrink-0">
+              <DollarCircleOutlined />
+            </div>
+          </div>
+          <div class="flex items-center gap-1.5 mt-3 pt-3 border-t border-slate-100 text-xs">
+            <span class="text-sky-600 font-semibold flex items-center gap-0.5">
+              <ArrowUpOutlined /> +15.8%
+            </span>
+            <span class="text-slate-400 truncate">so với hôm qua</span>
+          </div>
+        </a-card>
+      </a-col>
+
+      <!-- Metric 2: Đơn hàng mới -->
+      <a-col :xs="24" :sm="12" :lg="6">
+        <a-card :bordered="false" class="!rounded-2xl !shadow-xs hover:!shadow-md transition-shadow">
+          <div class="flex items-start justify-between">
+            <div class="min-w-0">
+              <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1 truncate">
+                {{ t('admin.newOrders') }}
+              </p>
+              <div class="text-xl sm:text-2xl font-black text-slate-800 leading-none truncate">
+                28 <span class="text-xs sm:text-sm font-semibold text-slate-500">đơn</span>
+              </div>
+            </div>
+            <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-cyan-50 flex items-center justify-center text-cyan-600 text-lg sm:text-xl shadow-xs shrink-0">
+              <ShoppingCartOutlined />
+            </div>
+          </div>
+          <div class="flex items-center justify-between mt-3 pt-3 border-t border-slate-100 text-xs">
+            <span class="text-amber-600 font-medium flex items-center gap-1 truncate">
+              <ClockCircleOutlined /> 4 chờ xử lý
+            </span>
+            <span class="text-sky-600 font-semibold shrink-0">+8%</span>
+          </div>
+        </a-card>
+      </a-col>
+
+      <!-- Metric 3: Sản phẩm đang bán -->
+      <a-col :xs="24" :sm="12" :lg="6">
+        <a-card :bordered="false" class="!rounded-2xl !shadow-xs hover:!shadow-md transition-shadow">
+          <div class="flex items-start justify-between">
+            <div class="min-w-0">
+              <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1 truncate">
+                {{ t('admin.products') }}
+              </p>
+              <div class="text-xl sm:text-2xl font-black text-slate-800 leading-none truncate">
+                542 <span class="text-xs sm:text-sm font-semibold text-slate-500">mặt hàng</span>
+              </div>
+            </div>
+            <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 text-lg sm:text-xl shadow-xs shrink-0">
+              <AppstoreOutlined />
+            </div>
+          </div>
+          <div class="flex items-center gap-1.5 mt-3 pt-3 border-t border-slate-100 text-xs">
+            <span class="text-rose-500 font-semibold flex items-center gap-0.5">
+              <WarningOutlined /> 4 món
+            </span>
+            <span class="text-slate-400 truncate">sắp hết hàng</span>
+          </div>
+        </a-card>
+      </a-col>
+
+      <!-- Metric 4: Khách hàng -->
+      <a-col :xs="24" :sm="12" :lg="6">
+        <a-card :bordered="false" class="!rounded-2xl !shadow-xs hover:!shadow-md transition-shadow">
+          <div class="flex items-start justify-between">
+            <div class="min-w-0">
+              <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1 truncate">
+                {{ t('admin.customers') }}
+              </p>
+              <div class="text-xl sm:text-2xl font-black text-slate-800 leading-none truncate">
+                136 <span class="text-xs sm:text-sm font-semibold text-slate-500">thành viên</span>
+              </div>
+            </div>
+            <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600 text-lg sm:text-xl shadow-xs shrink-0">
+              <TeamOutlined />
+            </div>
+          </div>
+          <div class="flex items-center gap-1.5 mt-3 pt-3 border-t border-slate-100 text-xs">
+            <span class="text-sky-600 font-semibold flex items-center gap-0.5">
+              <ArrowUpOutlined /> +5
+            </span>
+            <span class="text-slate-400 truncate">khách mới hôm nay</span>
+          </div>
+        </a-card>
+      </a-col>
+    </a-row>
+
+    <!-- Main Content Area: Responsive Grid -->
+    <a-row :gutter="[16, 16]">
+      <!-- Left Column (Desktop 16 cols, Tablet/Mobile 24 cols) -->
+      <a-col :xs="24" :lg="16" class="space-y-4 sm:space-y-6">
+        <!-- Recent Orders Table Card with horizontal scroll protection -->
+        <a-card :bordered="false" class="!rounded-2xl !shadow-xs overflow-hidden">
+          <template #title>
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-slate-800 text-sm sm:text-base">{{ t('admin.recentOrders') }}</span>
+              <a-tag color="processing" class="!text-xs !bg-sky-50 !text-sky-600 !border-sky-200">Mới</a-tag>
+            </div>
+          </template>
+
+          <template #extra>
+            <a-button type="link" size="small" class="!text-sky-600 !p-0" @click="handleQuickAction('Xem tất cả đơn hàng')">
+              {{ t('admin.viewAll') }} →
+            </a-button>
+          </template>
+
+          <a-table
+            :columns="orderColumns"
+            :dataSource="recentOrders"
+            :pagination="false"
+            size="middle"
+            :scroll="{ x: 700 }"
+          >
+            <!-- Custom Order Code -->
+            <template #bodyCell="{ column, record }">
+              <template v-if="column.key === 'code'">
+                <span class="font-mono font-bold text-slate-800 text-xs">{{ record.code }}</span>
+                <span class="block text-[10px] text-slate-400">{{ record.time }}</span>
+              </template>
+
+              <!-- Custom Customer Column -->
+              <template v-else-if="column.key === 'customer'">
+                <div class="font-medium text-slate-800 text-xs leading-tight">{{ record.customer }}</div>
+                <div class="text-[11px] text-slate-400">{{ record.phone }}</div>
+              </template>
+
+              <!-- Custom Total Column -->
+              <template v-else-if="column.key === 'total'">
+                <span class="font-bold text-sky-600 text-xs">{{ record.total }}</span>
+              </template>
+
+              <!-- Custom Payment Method Column -->
+              <template v-else-if="column.key === 'paymentMethod'">
+                <a-tag
+                  :color="record.paymentMethod === 'VietQR' ? 'blue' : record.paymentMethod === 'MoMo' ? 'magenta' : 'default'"
+                  class="!text-[11px]"
+                >
+                  {{ record.paymentMethod }}
+                </a-tag>
+              </template>
+
+              <!-- Custom Status Column -->
+              <template v-else-if="column.key === 'status'">
+                <a-tag :color="record.statusColor" class="!text-[11px]">
+                  {{ record.statusText }}
+                </a-tag>
+              </template>
+
+              <!-- Action Column -->
+              <template v-else-if="column.key === 'action'">
+                <a-button
+                  type="text"
+                  size="small"
+                  class="text-sky-600 hover:text-sky-700"
+                  @click="viewOrderDetail(record)"
+                >
+                  <EyeOutlined />
+                </a-button>
+              </template>
+            </template>
+          </a-table>
+        </a-card>
+
+        <!-- Category Sales Breakdown -->
+        <a-card :bordered="false" class="!rounded-2xl !shadow-xs">
+          <template #title>
+            <span class="font-bold text-slate-800 text-sm sm:text-base">Tỷ trọng doanh thu theo ngành hàng</span>
+          </template>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div v-for="cat in categorySales" :key="cat.name" class="p-3.5 rounded-xl bg-slate-50 border border-slate-100">
+              <div class="flex items-center justify-between text-xs mb-1.5">
+                <span class="font-semibold text-slate-700">{{ cat.name }}</span>
+                <span class="font-bold text-slate-900">{{ cat.amount }}</span>
+              </div>
+              <a-progress
+                :percent="cat.percent"
+                :stroke-color="cat.color"
+                size="small"
+                :format="(percent: number | undefined) => `${percent}%`"
+              />
+            </div>
+          </div>
+        </a-card>
+      </a-col>
+
+      <!-- Right Column (Desktop 8 cols, Tablet/Mobile 24 cols) -->
+      <a-col :xs="24" :lg="8" class="space-y-4 sm:space-y-6">
+        <!-- Quick Action Shortcuts -->
+        <a-card :bordered="false" class="!rounded-2xl !shadow-xs">
+          <template #title>
+            <span class="font-bold text-slate-800 text-sm sm:text-base">{{ t('admin.quickActions') }}</span>
+          </template>
+
+          <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-2 gap-2.5 sm:gap-3">
+            <button
+              type="button"
+              @click="handleQuickAction('Bán hàng tại quầy POS')"
+              class="flex flex-col items-center justify-center p-3 sm:p-3.5 rounded-xl bg-sky-50 hover:bg-sky-100/70 border border-sky-100 text-sky-800 transition-colors cursor-pointer group"
+            >
+              <ShopOutlined class="text-xl sm:text-2xl text-sky-500 group-hover:scale-110 transition-transform mb-1" />
+              <span class="text-xs font-semibold">Bán hàng POS</span>
+              <span class="text-[10px] text-sky-600">Tạo đơn nhanh</span>
+            </button>
+
+            <button
+              type="button"
+              @click="router.push('/admin/categories')"
+              class="flex flex-col items-center justify-center p-3 sm:p-3.5 rounded-xl bg-emerald-50 hover:bg-emerald-100/70 border border-emerald-100 text-emerald-800 transition-colors cursor-pointer group"
+            >
+              <TagsOutlined class="text-xl sm:text-2xl text-emerald-600 group-hover:scale-110 transition-transform mb-1" />
+              <span class="text-xs font-semibold">Quản lý Danh mục</span>
+              <span class="text-[10px] text-emerald-600">Rau củ & Tạp hóa</span>
+            </button>
+
+            <button
+              type="button"
+              @click="handleQuickAction('Thêm sản phẩm mới')"
+              class="flex flex-col items-center justify-center p-3 sm:p-3.5 rounded-xl bg-cyan-50 hover:bg-cyan-100/70 border border-cyan-100 text-cyan-800 transition-colors cursor-pointer group"
+            >
+              <PlusOutlined class="text-xl sm:text-2xl text-cyan-600 group-hover:scale-110 transition-transform mb-1" />
+              <span class="text-xs font-semibold">Thêm sản phẩm</span>
+              <span class="text-[10px] text-cyan-600">Mặt hàng mới</span>
+            </button>
+
+            <button
+              type="button"
+              @click="handleQuickAction('Quét mã vạch nhập kho')"
+              class="flex flex-col items-center justify-center p-3 sm:p-3.5 rounded-xl bg-indigo-50 hover:bg-indigo-100/70 border border-indigo-100 text-indigo-800 transition-colors cursor-pointer group"
+            >
+              <BarcodeOutlined class="text-xl sm:text-2xl text-indigo-600 group-hover:scale-110 transition-transform mb-1" />
+              <span class="text-xs font-semibold">Quét mã vạch</span>
+              <span class="text-[10px] text-indigo-600">Nhập kho</span>
+            </button>
+
+            <button
+              type="button"
+              @click="handleQuickAction('Xuất báo cáo doanh thu')"
+              class="flex flex-col items-center justify-center p-3 sm:p-3.5 rounded-xl bg-amber-50 hover:bg-amber-100/70 border border-amber-100 text-amber-800 transition-colors cursor-pointer group"
+            >
+              <DownloadOutlined class="text-xl sm:text-2xl text-amber-600 group-hover:scale-110 transition-transform mb-1" />
+              <span class="text-xs font-semibold">Xuất báo cáo</span>
+              <span class="text-[10px] text-amber-600">Excel / PDF</span>
+            </button>
+          </div>
+        </a-card>
+
+        <!-- Low Stock Warning Card -->
+        <a-card :bordered="false" class="!rounded-2xl !shadow-xs">
+          <template #title>
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-slate-800 text-sm sm:text-base">{{ t('admin.lowStockAlert') }}</span>
+              <a-badge :count="lowStockProducts.length" :overflow-count="99" />
+            </div>
+          </template>
+
+          <div class="space-y-3">
+            <div
+              v-for="item in lowStockProducts"
+              :key="item.id"
+              class="p-2.5 sm:p-3 rounded-xl bg-rose-50/50 border border-rose-100"
+            >
+              <div class="flex items-start justify-between gap-2">
+                <span class="font-semibold text-xs text-slate-800 leading-tight">
+                  {{ item.name }}
+                </span>
+                <a-tag color="error" class="!text-[10px] !mr-0 shrink-0">
+                  Còn {{ item.stock }} {{ item.unit }}
+                </a-tag>
+              </div>
+              <div class="mt-2">
+                <a-progress
+                  :percent="item.percent"
+                  status="exception"
+                  size="small"
+                  :showInfo="false"
+                />
+              </div>
+            </div>
+
+            <a-button
+              block
+              type="dashed"
+              @click="handleQuickAction('Tạo đơn nhập hàng loạt')"
+              class="!text-xs !rounded-lg hover:!text-sky-600 hover:!border-sky-500"
+            >
+              <PlusOutlined /> Nhập thêm hàng kho
+            </a-button>
+          </div>
+        </a-card>
+
+        <!-- Recent Activity Timeline Card -->
+        <a-card :bordered="false" class="!rounded-2xl !shadow-xs">
+          <template #title>
+            <span class="font-bold text-slate-800 text-sm sm:text-base">{{ t('admin.recentActivity') }}</span>
+          </template>
+
+          <a-timeline class="!mt-2 !text-xs">
+            <a-timeline-item color="blue">
+              <p class="font-medium text-slate-800 leading-snug">Đơn #TQ-1082 thanh toán thành công</p>
+              <span class="text-[11px] text-slate-400">10 phút trước • VietQR</span>
+            </a-timeline-item>
+            <a-timeline-item color="cyan">
+              <p class="font-medium text-slate-800 leading-snug">Bắt đầu giao đơn hàng #TQ-1081</p>
+              <span class="text-[11px] text-slate-400">25 phút trước • Shipper nhận hàng</span>
+            </a-timeline-item>
+            <a-timeline-item color="red">
+              <p class="font-medium text-slate-800 leading-snug">Cảnh báo: Gạo ST25 chạm ngưỡng tồn tối thiểu</p>
+              <span class="text-[11px] text-slate-400">45 phút trước • Hệ thống kho</span>
+            </a-timeline-item>
+            <a-timeline-item color="gray">
+              <p class="font-medium text-slate-800 leading-snug">Đăng nhập thành công vào trang quản trị</p>
+              <span class="text-[11px] text-slate-400">08:00 sáng • Quản trị viên</span>
+            </a-timeline-item>
+          </a-timeline>
+        </a-card>
+      </a-col>
+    </a-row>
+
+    <!-- Responsive Order Detail Modal -->
+    <a-modal
+      v-model:open="isModalVisible"
+      :title="`Chi tiết đơn hàng ${selectedOrder?.code || ''}`"
+      :footer="null"
+      centered
+      :width="isMobile ? '92%' : 520"
+      class="!rounded-2xl"
+    >
+      <div v-if="selectedOrder" class="space-y-4 py-2">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+          <div>
+            <span class="text-xs text-slate-400 block">Khách hàng</span>
+            <span class="font-bold text-slate-800 text-sm">{{ selectedOrder.customer }}</span>
+            <span class="text-xs text-slate-500 block">{{ selectedOrder.phone }}</span>
+          </div>
+          <div class="text-right">
+            <span class="text-xs text-slate-400 block">Trạng thái</span>
+            <a-tag :color="selectedOrder.statusColor">{{ selectedOrder.statusText }}</a-tag>
+          </div>
+        </div>
+
+        <div>
+          <span class="text-xs font-semibold text-slate-400 block mb-1">Mặt hàng đặt mua</span>
+          <div class="p-3 rounded-xl bg-slate-50 border border-slate-100 text-xs text-slate-700 leading-relaxed">
+            {{ selectedOrder.items }}
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between pt-2">
+          <span class="text-xs text-slate-500">Hình thức thanh toán:</span>
+          <span class="font-semibold text-xs text-slate-800">{{ selectedOrder.paymentMethod }}</span>
+        </div>
+
+        <div class="flex items-center justify-between pt-1 border-t border-slate-100">
+          <span class="text-sm font-semibold text-slate-700">Tổng thanh toán:</span>
+          <span class="text-lg font-bold text-sky-600">{{ selectedOrder.total }}</span>
+        </div>
+
+        <div class="pt-4 flex gap-2">
+          <a-button block @click="isModalVisible = false">Đóng</a-button>
+          <a-button
+            block
+            type="primary"
+            class="!bg-sky-400 hover:!bg-sky-500"
+            @click="toast.success('Đã in hóa đơn đơn hàng thành công!'); isModalVisible = false"
+          >
+            <template #icon><FileTextOutlined /></template>
+            In hóa đơn
+          </a-button>
+        </div>
       </div>
-      <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
-        <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">{{ t('admin.newOrders') }}</p>
-        <p class="text-2xl font-bold text-slate-800 mt-2">0</p>
-        <span class="text-xs text-slate-400 mt-1 inline-block">{{ t('admin.pending') }}</span>
-      </div>
-      <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
-        <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">{{ t('admin.products') }}</p>
-        <p class="text-2xl font-bold text-slate-800 mt-2">0</p>
-        <span class="text-xs text-slate-400 mt-1 inline-block">{{ t('admin.activeSelling') }}</span>
-      </div>
-      <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
-        <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">{{ t('admin.customers') }}</p>
-        <p class="text-2xl font-bold text-slate-800 mt-2">0</p>
-        <span class="text-xs text-slate-400 mt-1 inline-block">{{ t('admin.members') }}</span>
-      </div>
-    </div>
+    </a-modal>
   </div>
 </template>
+
+<style scoped>
+:deep(.ant-card) {
+  border-radius: 16px;
+}
+</style>
