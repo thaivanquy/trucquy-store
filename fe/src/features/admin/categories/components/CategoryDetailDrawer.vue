@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import {
   EditOutlined,
   PictureOutlined,
@@ -6,8 +7,15 @@ import {
 } from '@ant-design/icons-vue'
 import type { Category } from '../types'
 import { useI18n } from '@/i18n'
+import { breakpointsTailwind, useBreakpoints } from '@vueuse/core'
 
 const { t } = useI18n()
+const breakpoints = useBreakpoints(breakpointsTailwind)
+const drawerWidth = computed(() => {
+  if (breakpoints.smaller('md').value) return '100%'
+  if (breakpoints.smaller('lg').value) return '80%'
+  return 540
+})
 
 interface Props {
   visible: boolean
@@ -41,7 +49,7 @@ function handleEdit() {
   <a-drawer
     :open="visible"
     placement="right"
-    :width="540"
+    :width="drawerWidth"
     :closable="false"
     :mask-closable="true"
     :z-index="1050"
@@ -53,7 +61,7 @@ function handleEdit() {
   >
     <div v-if="category" class="bg-white flex flex-col h-full text-slate-800">
 
-      <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0 bg-white">
+      <div class="flex items-center justify-between px-2 sm:px-6 py-3.5 sm:py-4 border-b border-slate-100 shrink-0 bg-white">
         <h3 class="text-base font-bold text-slate-900 leading-tight">
           {{ t('category.modalDetailTitle') }}
         </h3>
@@ -66,7 +74,7 @@ function handleEdit() {
         </button>
       </div>
 
-      <div class="flex-1 p-6 overflow-y-auto space-y-4 bg-slate-50/30">
+      <div class="flex-1 px-2 py-3.5 sm:p-6 overflow-y-auto space-y-3.5 sm:space-y-4 bg-slate-50/30">
 
         <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs space-y-3">
           <div class="flex items-start gap-3.5">
@@ -146,7 +154,7 @@ function handleEdit() {
         </div>
       </div>
 
-      <div class="flex items-center justify-end gap-2.5 px-6 py-4 border-t border-slate-100 bg-white shrink-0">
+      <div class="flex items-center justify-end gap-2.5 px-2 sm:px-6 py-3 border-t border-slate-100 bg-white shrink-0 pb-safe">
         <button
           type="button"
           @click="handleClose"

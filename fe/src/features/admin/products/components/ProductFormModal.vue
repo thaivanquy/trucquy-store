@@ -20,6 +20,7 @@ import { useToast } from '@/composables/useToast'
 import { useI18n } from '@/i18n'
 import { generateBarcode } from '@/utils/generator'
 import { priceInputFormatter, priceInputParser } from '@/utils/format'
+import { breakpointsTailwind, useBreakpoints } from '@vueuse/core'
 
 interface Props {
   visible: boolean
@@ -39,6 +40,12 @@ const emit = defineEmits<Emits>()
 
 const toast = useToast()
 const { t } = useI18n()
+const breakpoints = useBreakpoints(breakpointsTailwind)
+const drawerWidth = computed(() => {
+  if (breakpoints.smaller('md').value) return '100%'
+  if (breakpoints.smaller('lg').value) return '85%'
+  return 760
+})
 
 const productStore = useProductStore()
 const categoryStore = useCategoryStore()
@@ -372,7 +379,7 @@ async function handleSubmit() {
   <a-drawer
     :open="visible"
     placement="right"
-    :width="760"
+    :width="drawerWidth"
     :closable="false"
     :mask-closable="true"
     destroy-on-close
@@ -385,24 +392,24 @@ async function handleSubmit() {
   >
     <div class="bg-white flex flex-col h-full">
 
-      <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
-        <h3 class="text-base font-bold text-slate-900 leading-tight">
+      <div class="flex items-center justify-between px-2 sm:px-6 py-3.5 sm:py-4 border-b border-slate-100 shrink-0">
+        <h3 class="text-sm sm:text-base font-bold text-slate-900 leading-tight">
           {{ isEdit ? t('product.modalEditTitle') : t('product.modalCreateTitle') }}
         </h3>
         <button
           type="button"
           @click="handleCancel"
-          class="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 flex items-center justify-center transition-colors cursor-pointer"
+          class="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 flex items-center justify-center transition-colors cursor-pointer touch-target-min"
         >
           <span class="text-lg leading-none">&times;</span>
         </button>
       </div>
 
-      <div class="px-6 pt-2 border-b border-slate-100 flex items-center gap-6 bg-slate-50/60 shrink-0 text-xs font-semibold">
+      <div class="px-2 sm:px-6 pt-1.5 border-b border-slate-100 flex items-center gap-2 sm:gap-6 bg-slate-50/60 shrink-0 text-xs font-semibold overflow-x-auto no-scrollbar">
         <button
           type="button"
           @click="activeTab = 'general'"
-          class="pb-2.5 pt-1.5 border-b-2 transition-all cursor-pointer flex items-center gap-1.5"
+          class="pb-2.5 pt-1.5 px-2 sm:px-0 border-b-2 transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap"
           :class="activeTab === 'general' ? 'border-sky-600 text-sky-600 font-bold' : 'border-transparent text-slate-500 hover:text-slate-800'"
         >
           <InfoCircleOutlined />
@@ -412,7 +419,7 @@ async function handleSubmit() {
         <button
           type="button"
           @click="activeTab = 'units'"
-          class="pb-2.5 pt-1.5 border-b-2 transition-all cursor-pointer flex items-center gap-1.5"
+          class="pb-2.5 pt-1.5 px-2 sm:px-0 border-b-2 transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap"
           :class="activeTab === 'units' ? 'border-sky-600 text-sky-600 font-bold' : 'border-transparent text-slate-500 hover:text-slate-800'"
         >
           <DollarOutlined />
@@ -428,7 +435,7 @@ async function handleSubmit() {
         <button
           type="button"
           @click="activeTab = 'supplier'"
-          class="pb-2.5 pt-1.5 border-b-2 transition-all cursor-pointer flex items-center gap-1.5"
+          class="pb-2.5 pt-1.5 px-2 sm:px-0 border-b-2 transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap"
           :class="activeTab === 'supplier' ? 'border-sky-600 text-sky-600 font-bold' : 'border-transparent text-slate-500 hover:text-slate-800'"
         >
           <ShopOutlined />
@@ -439,7 +446,7 @@ async function handleSubmit() {
       <form
         @submit.prevent="handleSubmit"
         id="product-form"
-        class="flex-1 overflow-y-auto px-6 py-4 space-y-4"
+        class="flex-1 overflow-y-auto px-2 sm:px-6 py-3.5 sm:py-4 space-y-4 pb-20 sm:pb-8"
       >
 
         <div v-show="activeTab === 'general'" class="space-y-4">
@@ -528,13 +535,13 @@ async function handleSubmit() {
 
         <div v-show="activeTab === 'units'" class="space-y-5">
 
-          <div class="bg-slate-50/80 rounded-2xl border border-slate-200 p-4 space-y-3.5">
-            <div class="flex items-center justify-between">
+          <div class="bg-slate-50/80 rounded-2xl border border-slate-200 p-3.5 sm:p-4 space-y-3.5">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
               <span class="text-xs font-bold text-slate-800 uppercase tracking-wide flex items-center gap-1.5">
                 <span class="w-2 h-2 rounded-full bg-sky-500"></span>
                 {{ t('product.sectionBasic') }}
               </span>
-              <span class="text-[11px] text-slate-400">{{ t('product.baseUnitSubtitle') }}</span>
+              <span class="text-[11px] text-slate-500 sm:text-right">{{ t('product.baseUnitSubtitle') }}</span>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
@@ -657,8 +664,8 @@ async function handleSubmit() {
             </div>
           </div>
 
-          <div class="bg-white rounded-2xl border border-slate-200 p-4 space-y-3">
-            <div class="flex items-center justify-between">
+          <div class="bg-white rounded-2xl border border-slate-200 p-3.5 sm:p-4 space-y-3">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
               <span class="text-xs font-bold text-slate-800 uppercase tracking-wide flex items-center gap-1.5">
                 <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
                 {{ t('product.sectionConversions') }}
@@ -667,7 +674,7 @@ async function handleSubmit() {
               <button
                 type="button"
                 @click="addConversionUnit"
-                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs font-semibold transition-colors cursor-pointer"
+                class="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs font-semibold transition-colors cursor-pointer whitespace-nowrap"
               >
                 <PlusOutlined class="text-xs" />
                 <span>{{ t('product.addConversionBtn') }}</span>
@@ -859,11 +866,11 @@ async function handleSubmit() {
         </div>
       </form>
 
-      <div class="flex items-center justify-end gap-2.5 px-6 py-3.5 border-t border-slate-100 bg-slate-50/70 shrink-0">
+      <div class="grid grid-cols-2 sm:flex sm:items-center sm:justify-end gap-2 sm:gap-2.5 px-2 sm:px-6 py-3 border-t border-slate-100 bg-white sm:bg-slate-50/70 shrink-0 sticky bottom-0 z-20 pb-safe shadow-xs">
         <button
           type="button"
           @click="handleCancel"
-          class="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-white text-xs font-semibold transition-colors cursor-pointer"
+          class="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-semibold transition-colors cursor-pointer text-center"
         >
           {{ t('product.cancelBtn') }}
         </button>
@@ -872,7 +879,7 @@ async function handleSubmit() {
           type="button"
           @click="handleSubmit"
           :disabled="isSubmitting"
-          class="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 active:bg-sky-800 !text-white text-xs font-semibold shadow-xs transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50"
+          class="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 active:bg-sky-800 !text-white text-xs font-semibold shadow-xs transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50 text-center"
         >
           <span v-if="isSubmitting" class="!text-white">{{ t('product.savingBtn') }}</span>
           <span v-else class="!text-white">{{ isEdit ? t('product.updateSubmitBtn') : t('product.createSubmitBtn') }}</span>

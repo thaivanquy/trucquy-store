@@ -13,8 +13,15 @@ import {
 import type { Product } from '../types'
 import { formatPrice, calculateMargin, copyToClipboard } from '@/utils/format'
 import { useI18n } from '@/i18n'
+import { breakpointsTailwind, useBreakpoints } from '@vueuse/core'
 
 const { t } = useI18n()
+const breakpoints = useBreakpoints(breakpointsTailwind)
+const drawerWidth = computed(() => {
+  if (breakpoints.smaller('md').value) return '100%'
+  if (breakpoints.smaller('lg').value) return '80%'
+  return 640
+})
 
 interface Props {
   visible: boolean
@@ -65,7 +72,7 @@ const defaultSupplier = computed(() => {
   <a-drawer
     :open="visible"
     placement="right"
-    :width="640"
+    :width="drawerWidth"
     :closable="false"
     :mask-closable="true"
     :z-index="1050"
@@ -77,7 +84,8 @@ const defaultSupplier = computed(() => {
   >
     <div v-if="product" class="bg-white flex flex-col h-full text-slate-800">
 
-      <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0 bg-white">
+      <!-- Drawer Header -->
+      <div class="flex items-center justify-between px-2 sm:px-6 py-3.5 sm:py-4 border-b border-slate-100 shrink-0 bg-white">
         <h3 class="text-base font-bold text-slate-900 leading-tight">
           {{ t('product.modalDetailTitle') }}
         </h3>
@@ -90,12 +98,15 @@ const defaultSupplier = computed(() => {
         </button>
       </div>
 
-      <div class="flex-1 p-6 overflow-y-auto space-y-5 bg-slate-50/30">
+      <!-- Drawer Content -->
+      <div class="flex-1 px-2 py-3.5 sm:p-6 overflow-y-auto space-y-3.5 sm:space-y-5 bg-slate-50/30">
 
-        <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-2xs space-y-4">
-          <div class="flex flex-col sm:flex-row items-start gap-4">
-
-            <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-slate-50 border border-slate-200/90 overflow-hidden shrink-0 shadow-2xs flex items-center justify-center">
+        <!-- Product Summary Header Card -->
+        <div class="bg-white p-3.5 sm:p-5 rounded-2xl border border-slate-200/80 shadow-2xs space-y-3 sm:space-y-4">
+          <!-- Primary Info: Image side-by-side with Title, Category & Price on both Mobile & Desktop -->
+          <div class="flex items-start gap-3 sm:gap-4">
+            <!-- Thumbnail -->
+            <div class="w-24 h-24 sm:w-32 sm:h-32 rounded-xl sm:rounded-2xl bg-slate-50 border border-slate-200/90 overflow-hidden shrink-0 shadow-2xs flex items-center justify-center">
               <img
                 v-if="product.image"
                 :src="product.image"
@@ -103,45 +114,31 @@ const defaultSupplier = computed(() => {
                 class="w-full h-full object-cover"
               />
               <div v-else class="text-slate-300 flex flex-col items-center">
-                <PictureOutlined class="text-2xl mb-1 opacity-60" />
-                <span class="text-[10px] text-slate-400">{{ t('product.noImage') }}</span>
+                <PictureOutlined class="text-2xl sm:text-3xl mb-1 opacity-60" />
+                <span class="text-[11px] sm:text-xs text-slate-400">{{ t('product.noImage') }}</span>
               </div>
             </div>
 
-            <div class="flex-1 space-y-2">
-              <h4 class="text-base font-bold text-slate-900 leading-snug">
-                {{ product.name }}
-              </h4>
+            <!-- Title, Category & Price -->
+            <div class="flex-1 min-w-0 flex flex-col justify-between self-stretch">
+              <div>
+                <!-- Category Eyebrow -->
+                <div v-if="product.category?.name" class="mb-1">
+                  <span class="inline-flex items-center gap-1 text-[11px] sm:text-xs font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md max-w-full truncate">
+                    <AppstoreOutlined class="text-[10px] text-slate-400 shrink-0" />
+                    <span class="truncate">{{ product.category.name }}</span>
+                  </span>
+                </div>
 
-              <div class="flex flex-wrap items-center gap-2">
-
-                <span class="inline-flex items-center font-mono text-xs font-bold text-sky-700 bg-sky-50 border border-sky-200 px-2.5 py-0.5 rounded-md">
-                  {{ t('product.codeSku', { code: product.code }) }}
-                </span>
-
-                <button
-                  v-if="product.barcode"
-                  type="button"
-                  @click="handleCopyBarcode(product.barcode)"
-                  class="inline-flex items-center gap-1 font-mono text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-sky-50 hover:text-sky-700 hover:border-sky-300 border border-slate-200 px-2 py-0.5 rounded-md transition-colors cursor-pointer"
-                  :title="t('product.copyBarcodeTitle')"
-                >
-                  <BarcodeOutlined class="text-slate-400 text-xs" />
-                  <span>{{ product.barcode }}</span>
-                  <CopyOutlined class="text-[10px] text-slate-400 ml-0.5" />
-                </button>
-
-                <span
-                  v-if="product.category?.name"
-                  class="inline-flex items-center gap-1 text-xs font-medium text-slate-600 bg-slate-100/80 px-2 py-0.5 rounded-md border border-slate-200/80"
-                >
-                  <AppstoreOutlined class="text-[11px] text-slate-400" />
-                  {{ product.category.name }}
-                </span>
+                <!-- Product Title -->
+                <h4 class="text-sm sm:text-base font-bold text-slate-900 leading-snug line-clamp-2" :title="product.name">
+                  {{ product.name }}
+                </h4>
               </div>
 
-              <div class="pt-2 flex items-baseline gap-2">
-                <span class="text-2xl font-extrabold text-slate-900 tracking-tight">
+              <!-- Selling Price -->
+              <div class="pt-1.5 flex items-baseline gap-1.5 flex-wrap">
+                <span class="text-lg sm:text-2xl font-black text-sky-600 sm:text-slate-900 tracking-tight">
                   {{ formatPrice(product.selling_price) }}
                 </span>
                 <span class="text-xs text-slate-500 font-medium">
@@ -150,9 +147,35 @@ const defaultSupplier = computed(() => {
               </div>
             </div>
           </div>
+
+          <!-- Bottom: Clean, structured metadata strip for SKU & Barcode -->
+          <div class="pt-2.5 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-xs">
+            <!-- SKU -->
+            <div class="flex items-center gap-1.5">
+              <span class="text-slate-400 font-medium shrink-0">Mã SKU:</span>
+              <span class="font-mono font-bold text-sky-700 bg-sky-50 border border-sky-200/80 px-2 py-0.5 rounded text-xs">
+                {{ product.code }}
+              </span>
+            </div>
+
+            <!-- Barcode with copy button -->
+            <div v-if="product.barcode" class="flex items-center gap-1.5">
+              <span class="text-slate-400 font-medium shrink-0">{{ t('product.colBarcode') }}:</span>
+              <button
+                type="button"
+                @click="handleCopyBarcode(product.barcode)"
+                class="inline-flex items-center gap-1 font-mono font-semibold text-slate-700 bg-slate-50 hover:bg-sky-50 hover:text-sky-700 hover:border-sky-300 border border-slate-200 px-2 py-0.5 rounded text-xs transition-colors cursor-pointer shadow-2xs"
+                :title="t('product.copyBarcodeTitle')"
+              >
+                <BarcodeOutlined class="text-slate-400 text-xs shrink-0" />
+                <span>{{ product.barcode }}</span>
+                <CopyOutlined class="text-[10px] text-slate-400 ml-0.5 shrink-0" />
+              </button>
+            </div>
+          </div>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-3">
 
           <div class="bg-white p-3.5 rounded-xl border border-slate-200/80 shadow-2xs">
             <span class="text-xs font-semibold text-slate-400 block">{{ t('product.costPriceLabel') }}</span>
@@ -209,7 +232,7 @@ const defaultSupplier = computed(() => {
             </div>
           </div>
 
-          <div class="bg-white p-3.5 rounded-xl border border-slate-200/80 shadow-2xs">
+          <div class="col-span-2 sm:col-span-1 bg-white p-3.5 rounded-xl border border-slate-200/80 shadow-2xs">
             <span class="text-xs font-semibold text-slate-400 block">{{ t('product.minStockThreshold') }}</span>
             <div class="mt-1 flex items-baseline gap-1">
               <span class="text-base font-bold text-slate-800">
@@ -221,37 +244,38 @@ const defaultSupplier = computed(() => {
           </div>
         </div>
 
-        <div v-if="conversionUnits.length > 0" class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs space-y-3">
-          <div class="flex items-center justify-between">
+        <!-- Conversion Units Table -->
+        <div v-if="conversionUnits.length > 0" class="bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 shadow-2xs space-y-3">
+          <div class="flex items-center justify-between gap-2 flex-wrap">
             <h5 class="text-xs font-bold text-slate-800 uppercase tracking-wide">
               {{ t('product.conversionsSectionTitle', { count: conversionUnits.length }) }}
             </h5>
-            <span class="text-[11px] text-slate-400">{{ t('product.conversionsSectionSubtitle') }}</span>
+            <span class="text-xs text-slate-400">{{ t('product.conversionsSectionSubtitle') }}</span>
           </div>
 
-          <div class="border border-slate-200/90 rounded-xl overflow-hidden">
-            <table class="w-full text-left text-xs">
+          <div class="border border-slate-200/90 rounded-xl overflow-x-auto">
+            <table class="w-full text-left text-xs min-w-[360px]">
               <thead class="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200/80">
                 <tr>
-                  <th class="py-2 px-3">{{ t('product.colSpecName') }}</th>
-                  <th class="py-2 px-3">{{ t('product.colRate') }}</th>
-                  <th class="py-2 px-3">{{ t('product.colBarcode') }}</th>
-                  <th class="py-2 px-3 text-right">{{ t('product.colPrice') }}</th>
+                  <th class="py-2.5 px-3 whitespace-nowrap">{{ t('product.colSpecName') }}</th>
+                  <th class="py-2.5 px-3 whitespace-nowrap">{{ t('product.colRate') }}</th>
+                  <th class="py-2.5 px-3 whitespace-nowrap">{{ t('product.colBarcode') }}</th>
+                  <th class="py-2.5 px-3 text-right whitespace-nowrap">{{ t('product.colPrice') }}</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-100 font-medium text-slate-700">
                 <tr v-for="(cu, index) in conversionUnits" :key="cu.id ?? index" class="hover:bg-slate-50/50">
-                  <td class="py-2 px-3 font-bold text-slate-800">
+                  <td class="py-2.5 px-3 font-bold text-slate-800 whitespace-nowrap">
                     {{ cu.unit?.name || 'ĐVT quy đổi' }}
                   </td>
-                  <td class="py-2 px-3 text-slate-500">
+                  <td class="py-2.5 px-3 text-slate-500 whitespace-nowrap">
                     x{{ cu.conversion_rate }} {{ product.unit?.name || 'ĐVT' }}
                   </td>
-                  <td class="py-2 px-3 font-mono text-slate-600">
+                  <td class="py-2.5 px-3 font-mono text-slate-600 whitespace-nowrap">
                     <span
                       v-if="cu.barcode"
                       @click="handleCopyBarcode(cu.barcode)"
-                      class="inline-flex items-center gap-1 bg-slate-100 hover:bg-sky-50 px-1.5 py-0.5 rounded text-[11px] cursor-pointer"
+                      class="inline-flex items-center gap-1 bg-slate-100 hover:bg-sky-50 px-2 py-0.5 rounded text-xs cursor-pointer border border-slate-200/60"
                       :title="t('product.copyBarcodeTitle')"
                     >
                       {{ cu.barcode }}
@@ -259,7 +283,7 @@ const defaultSupplier = computed(() => {
                     </span>
                     <span v-else class="text-slate-300">---</span>
                   </td>
-                  <td class="py-2 px-3 text-right font-bold text-sky-700">
+                  <td class="py-2.5 px-3 text-right font-bold text-sky-700 whitespace-nowrap">
                     {{ formatPrice(cu.selling_price) }}
                   </td>
                 </tr>
@@ -268,18 +292,22 @@ const defaultSupplier = computed(() => {
           </div>
         </div>
 
-        <div v-if="defaultSupplier?.name" class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs space-y-2">
+        <!-- Supplier Info -->
+        <div v-if="defaultSupplier?.name" class="bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 shadow-2xs space-y-2">
           <h5 class="text-xs font-bold text-slate-800 uppercase tracking-wide flex items-center gap-1.5">
             <ShopOutlined class="text-sky-600" />
             <span>{{ t('product.supplierSectionTitle') }}</span>
           </h5>
-          <div class="text-xs bg-slate-50 p-2.5 rounded-xl border border-slate-100 flex items-center gap-2">
-            <span class="font-bold text-slate-800">{{ defaultSupplier.name }}</span>
-            <span v-if="defaultSupplier.code" class="text-slate-400 font-mono">({{ defaultSupplier.code }})</span>
+          <div class="text-xs bg-slate-50 p-2.5 sm:p-3 rounded-xl border border-slate-100 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2">
+            <span class="font-bold text-slate-800 leading-snug">{{ defaultSupplier.name }}</span>
+            <span v-if="defaultSupplier.code" class="text-slate-600 font-mono font-medium shrink-0 whitespace-nowrap bg-white px-2 py-0.5 rounded-md border border-slate-200/80 text-[11px]">
+              {{ defaultSupplier.code }}
+            </span>
           </div>
         </div>
 
-        <div v-if="product.description" class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs space-y-1.5">
+        <!-- Description -->
+        <div v-if="product.description" class="bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 shadow-2xs space-y-1.5">
           <h5 class="text-xs font-bold text-slate-800 uppercase tracking-wide">
             {{ t('product.descSectionTitle') }}
           </h5>
@@ -289,11 +317,12 @@ const defaultSupplier = computed(() => {
         </div>
       </div>
 
-      <div class="flex items-center justify-end gap-2.5 px-6 py-4 border-t border-slate-100 bg-white shrink-0">
+      <!-- Drawer Footer -->
+      <div class="flex items-center justify-end gap-2 px-2 sm:px-6 py-3 border-t border-slate-100 bg-white shrink-0 pb-safe">
         <button
           type="button"
           @click="handleClose"
-          class="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-semibold transition-colors cursor-pointer"
+          class="px-4 h-9 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs sm:text-sm font-semibold transition-colors cursor-pointer"
         >
           {{ t('product.closeModal') }}
         </button>
@@ -301,7 +330,7 @@ const defaultSupplier = computed(() => {
         <button
           type="button"
           @click="handleEdit"
-          class="inline-flex items-center justify-center px-4.5 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 !text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+          class="inline-flex items-center justify-center px-4.5 h-9 rounded-xl bg-sky-600 hover:bg-sky-700 !text-white text-xs sm:text-sm font-semibold shadow-xs transition-colors cursor-pointer"
         >
           <span class="!text-white">{{ t('product.editProductBtn') }}</span>
         </button>

@@ -250,28 +250,36 @@ onMounted(() => {
 
 <template>
   <div class="space-y-4 pb-12 sm:pb-16 overflow-x-hidden">
-    <div class="flex items-center justify-end gap-2.5 pb-0.5">
-      <button
-        type="button"
-        @click="isAllExpanded ? collapseAll() : expandAll()"
-        class="px-3.5 h-9 rounded-lg border border-slate-200/90 bg-white hover:bg-slate-50 text-slate-700 text-sm font-medium shadow-2xs transition-colors cursor-pointer flex items-center gap-2"
-      >
-        <component :is="isAllExpanded ? DownOutlined : RightOutlined" class="text-xs text-slate-400" />
-        <span>{{ isAllExpanded ? t('category.collapseAll') : t('category.expandAll') }}</span>
-      </button>
+    <!-- Page Title & Header Actions -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-0.5">
+      <div>
+        <h1 class="text-xl sm:text-2xl font-bold text-slate-800 tracking-tight">{{ t('category.title') }}</h1>
+        <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Quản lý cấu trúc danh mục cha con và thứ tự hiển thị</p>
+      </div>
 
-      <button
-        type="button"
-        @click="openCreateRootModal"
-        class="inline-flex items-center justify-center gap-2 px-4 h-9 rounded-lg bg-sky-600 hover:bg-sky-700 active:bg-sky-800 !text-white text-sm font-semibold shadow-xs transition-all active:scale-[0.98] cursor-pointer select-none"
-      >
-        <PlusOutlined class="text-xs text-white" />
-        <span class="text-white leading-none">{{ t('category.addRoot') }}</span>
-      </button>
+      <div class="flex items-center gap-2 self-start sm:self-auto">
+        <button
+          type="button"
+          @click="isAllExpanded ? collapseAll() : expandAll()"
+          class="px-3 h-9 rounded-lg border border-slate-200/90 bg-white hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-medium shadow-2xs transition-colors cursor-pointer flex items-center gap-1.5"
+        >
+          <component :is="isAllExpanded ? DownOutlined : RightOutlined" class="text-xs text-slate-400" />
+          <span>{{ isAllExpanded ? t('category.collapseAll') : t('category.expandAll') }}</span>
+        </button>
+
+        <button
+          type="button"
+          @click="openCreateRootModal"
+          class="inline-flex items-center justify-center gap-1.5 px-3.5 sm:px-4 h-9 rounded-lg bg-sky-600 hover:bg-sky-700 active:bg-sky-800 !text-white text-xs sm:text-sm font-semibold shadow-xs transition-all active:scale-[0.98] cursor-pointer select-none"
+        >
+          <PlusOutlined class="text-xs text-white" />
+          <span class="text-white leading-none">{{ t('category.addRoot') }}</span>
+        </button>
+      </div>
     </div>
 
-    <div class="bg-white rounded-xl border border-slate-200/90 p-3 sm:p-3.5 shadow-2xs flex flex-wrap items-center gap-3">
-      <div class="w-full sm:w-72">
+    <div class="bg-white rounded-xl border border-slate-200/90 p-3 sm:p-3.5 shadow-2xs flex flex-wrap items-center gap-2 sm:gap-3">
+      <div class="w-full sm:flex-1 sm:min-w-[200px] sm:max-w-xs md:max-w-sm">
         <a-input
           v-model:value="filters.search"
           :placeholder="t('category.searchPlaceholder')"
@@ -285,36 +293,38 @@ onMounted(() => {
         </a-input>
       </div>
 
-      <a-select
-        v-model:value="filters.parent_id"
-        :placeholder="t('category.filterParent')"
-        class="w-56 !rounded-lg !text-sm"
-        allow-clear
-        size="middle"
-        @change="handleFilterChange"
-      >
-        <a-select-option value="">{{ t('category.allParents') }}</a-select-option>
-        <a-select-option
-          v-for="root in rootCategories"
-          :key="root.id"
-          :value="root.id"
+      <div class="flex items-center gap-2 w-full sm:w-auto">
+        <a-select
+          v-model:value="filters.parent_id"
+          :placeholder="t('category.filterParent')"
+          class="flex-1 sm:w-52 !rounded-lg !text-sm"
+          allow-clear
+          size="middle"
+          @change="handleFilterChange"
         >
-          {{ root.name }} ({{ root.code }})
-        </a-select-option>
-      </a-select>
+          <a-select-option value="">{{ t('category.allParents') }}</a-select-option>
+          <a-select-option
+            v-for="root in rootCategories"
+            :key="root.id"
+            :value="root.id"
+          >
+            {{ root.name }} ({{ root.code }})
+          </a-select-option>
+        </a-select>
 
-      <a-select
-        v-model:value="filters.is_active"
-        :placeholder="t('category.filterStatus')"
-        class="w-40 !rounded-lg !text-sm"
-        allow-clear
-        size="middle"
-        @change="handleFilterChange"
-      >
-        <a-select-option value="">{{ t('category.allStatuses') }}</a-select-option>
-        <a-select-option value="true">{{ t('category.statusActive') }}</a-select-option>
-        <a-select-option value="false">{{ t('category.statusInactive') }}</a-select-option>
-      </a-select>
+        <a-select
+          v-model:value="filters.is_active"
+          :placeholder="t('category.filterStatus')"
+          class="flex-1 sm:w-36 !rounded-lg !text-sm"
+          allow-clear
+          size="middle"
+          @change="handleFilterChange"
+        >
+          <a-select-option value="">{{ t('category.allStatuses') }}</a-select-option>
+          <a-select-option value="true">{{ t('category.statusActive') }}</a-select-option>
+          <a-select-option value="false">{{ t('category.statusInactive') }}</a-select-option>
+        </a-select>
+      </div>
     </div>
 
     <div v-if="isLoading && treeGroups.length === 0" class="py-16 text-center bg-white rounded-xl border border-slate-200/90 shadow-2xs">
@@ -458,7 +468,7 @@ onMounted(() => {
             {{ t('category.noSubCategories') }} <button type="button" @click="openCreateSubModal(group.parent)" class="text-sky-600 font-semibold hover:underline cursor-pointer">[{{ t('category.addSub') }}]</button> {{ t('category.toCreateSub') }}
           </div>
 
-          <div v-else class="space-y-2.5 ml-4 sm:ml-8 pl-4 sm:pl-5 border-l-2 border-sky-200">
+          <div v-else class="space-y-2.5 ml-2 sm:ml-8 pl-2.5 sm:pl-5 border-l-2 border-sky-200">
             <div
               v-for="child in group.children"
               :key="child.id"
@@ -548,7 +558,7 @@ onMounted(() => {
         v-if="pagination.total > 0"
         class="bg-white rounded-xl border border-slate-200/90 px-4 py-3 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 mt-4"
       >
-        <span class="text-xs text-slate-500">
+        <span class="text-xs text-slate-500 text-center sm:text-left">
           {{ t('category.showingCount', { count: treeGroups.length, total: pagination.total }) }}
         </span>
         <a-pagination
@@ -558,6 +568,7 @@ onMounted(() => {
           :page-size-options="['5', '10', '20', '50']"
           :show-size-changer="true"
           size="small"
+          class="flex justify-center sm:justify-end"
           @change="handlePageChange"
         />
       </div>

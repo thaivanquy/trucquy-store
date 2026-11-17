@@ -13,6 +13,7 @@ import AppImageUpload from '@/components/common/AppImageUpload.vue'
 import { useToast } from '@/composables/useToast'
 import { useI18n } from '@/i18n'
 import { toSlug, generateCategoryCode } from '@/utils/generator'
+import { breakpointsTailwind, useBreakpoints } from '@vueuse/core'
 
 interface Props {
   visible: boolean;
@@ -34,6 +35,13 @@ const toast = useToast()
 const { t } = useI18n()
 const categoryStore = useCategoryStore()
 const isSubmitting = ref(false)
+
+const breakpoints = useBreakpoints(breakpointsTailwind)
+const drawerWidth = computed(() => {
+  if (breakpoints.smaller('md').value) return '100%'
+  if (breakpoints.smaller('lg').value) return '80%'
+  return 560
+})
 
 const form = ref<CategoryFormData>({
   parent_id: null,
@@ -196,7 +204,7 @@ async function handleSubmit() {
   <a-drawer
     :open="visible"
     placement="right"
-    :width="560"
+    :width="drawerWidth"
     :closable="false"
     :mask-closable="true"
     destroy-on-close
@@ -208,7 +216,7 @@ async function handleSubmit() {
     @close="emit('update:visible', false)"
   >
     <div class="bg-white flex flex-col h-full">
-      <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between shrink-0">
+      <div class="px-2 sm:px-6 py-3.5 sm:py-4 border-b border-slate-100 flex items-center justify-between shrink-0">
         <h3 class="text-base sm:text-lg font-bold text-slate-900 leading-normal m-0">
           {{ isEdit ? t('category.modalEditTitle') : t('category.modalCreateTitle') }}
         </h3>
@@ -221,7 +229,7 @@ async function handleSubmit() {
         </button>
       </div>
 
-      <form @submit.prevent="handleSubmit" id="category-form" class="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+      <form @submit.prevent="handleSubmit" id="category-form" class="flex-1 overflow-y-auto px-2 sm:px-6 py-4 space-y-4">
         <div>
           <label class="block text-sm font-semibold text-slate-700 mb-1.5">
             {{ t('category.imageLabel') }}
@@ -337,7 +345,7 @@ async function handleSubmit() {
         </div>
       </form>
 
-      <div class="flex items-center justify-end gap-2.5 px-6 py-4 border-t border-slate-100 bg-white shrink-0">
+      <div class="flex items-center justify-end gap-2.5 px-2 sm:px-6 py-3 border-t border-slate-100 bg-white shrink-0 pb-safe">
         <button
           type="button"
           class="px-4 h-9 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-medium transition-colors cursor-pointer"

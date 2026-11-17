@@ -331,14 +331,16 @@ async function handleLogout() {
         v-model:open="mobileDrawerOpen"
         placement="left"
         :closable="false"
-        :width="260"
-        :bodyStyle="{ padding: 0, backgroundColor: '#0f172a', display: 'flex', flexDirection: 'column', height: '100%' }"
+        :width="280"
+        class="admin-mobile-drawer"
+        :bodyStyle="{ padding: 0, backgroundColor: '#0b1120', display: 'flex', flexDirection: 'column', height: '100%' }"
       >
 
-        <div class="h-16 flex items-center justify-between px-5 border-b border-slate-800">
+        <!-- Drawer Header -->
+        <div class="h-16 flex items-center justify-between px-4 border-b border-slate-800/80 bg-slate-900/90 shrink-0">
           <div class="flex items-center gap-3">
             <div
-              class="w-8 h-8 rounded-xl bg-gradient-to-tr from-sky-500 to-sky-400 flex items-center justify-center text-white font-bold text-sm shadow-md shadow-sky-500/30"
+              class="w-9 h-9 rounded-xl bg-gradient-to-tr from-sky-500 to-sky-400 flex items-center justify-center text-white font-black text-sm shadow-md shadow-sky-500/30 shrink-0"
             >
               TQ
             </div>
@@ -346,7 +348,7 @@ async function handleLogout() {
               <span class="font-bold text-white tracking-tight text-sm block leading-tight">
                 {{ t('common.brandName') }}
               </span>
-              <span class="text-[10px] text-sky-400 font-semibold tracking-wider uppercase">
+              <span class="text-[10px] text-sky-400 font-bold tracking-wider uppercase">
                 {{ t('common.adminPortal') }}
               </span>
             </div>
@@ -354,13 +356,14 @@ async function handleLogout() {
           <button
             type="button"
             @click="mobileDrawerOpen = false"
-            class="w-8 h-8 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 flex items-center justify-center cursor-pointer"
+            class="w-8 h-8 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/80 flex items-center justify-center cursor-pointer transition-colors"
           >
             <CloseOutlined class="text-sm" />
           </button>
         </div>
 
-        <div class="flex-1 overflow-y-auto py-3">
+        <!-- Drawer Menu -->
+        <div class="flex-1 overflow-y-auto py-3 admin-sider-scroll">
           <a-menu
             v-model:selectedKeys="selectedKeys"
             v-model:openKeys="openKeys"
@@ -433,13 +436,35 @@ async function handleLogout() {
           </a-menu>
         </div>
 
-        <div class="p-4 border-t border-slate-800 bg-slate-900/80">
+        <!-- Drawer Footer: Profile + Storefront -->
+        <div class="p-3 border-t border-slate-800/80 bg-slate-900/90 space-y-2 pb-safe shrink-0">
+          <div class="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-slate-800/80 border border-slate-700/40">
+            <a-avatar
+              size="small"
+              class="!bg-gradient-to-tr !from-sky-500 !to-sky-400 !text-white font-bold shrink-0 shadow-xs"
+            >
+              <template #icon><UserOutlined /></template>
+            </a-avatar>
+            <div class="min-w-0 flex-1">
+              <p class="text-xs font-bold text-white truncate leading-tight">{{ currentUserName }}</p>
+              <p class="text-[10px] text-sky-400 font-medium truncate mt-0.5">{{ t('admin.adminRole') }}</p>
+            </div>
+            <button
+              type="button"
+              @click="handleLogout"
+              class="text-xs text-rose-400 hover:text-white hover:bg-rose-500/20 p-1.5 rounded-lg transition-colors cursor-pointer"
+              :title="t('common.logout')"
+            >
+              <LogoutOutlined class="text-xs" />
+            </button>
+          </div>
+
           <a
             href="/"
             target="_blank"
-            class="flex items-center gap-2.5 px-3 py-2 text-xs text-slate-400 hover:text-sky-400 hover:bg-slate-800 rounded-lg transition-colors"
+            class="flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white bg-slate-800/60 hover:bg-slate-800 border border-slate-700/40 transition-colors"
           >
-            <ExportOutlined class="text-sm shrink-0" />
+            <ExportOutlined class="text-xs shrink-0 text-sky-400" />
             <span>{{ t('common.viewStorefront') }}</span>
           </a>
         </div>
@@ -448,7 +473,7 @@ async function handleLogout() {
       <a-layout class="bg-slate-100 flex flex-col flex-1 min-w-0 min-h-0 h-screen overflow-hidden">
 
         <a-layout-header
-          class="!bg-white !px-3 sm:!px-6 !h-16 shrink-0 flex items-center justify-between border-b border-slate-200/80 z-20 shadow-xs admin-header leading-normal"
+          class="!bg-white !px-2 sm:!px-6 !h-16 shrink-0 flex items-center justify-between border-b border-slate-200/80 z-20 shadow-xs admin-header leading-normal"
         >
 
           <div class="flex items-center gap-2.5 sm:gap-4">
@@ -463,13 +488,13 @@ async function handleLogout() {
               <MenuFoldOutlined v-else class="text-lg" />
             </button>
 
-            <div v-if="isMobile" class="flex items-center gap-2">
+            <div v-if="isMobile" class="flex items-center gap-1.5 min-w-0">
               <div
-                class="w-7 h-7 rounded-lg bg-gradient-to-tr from-sky-500 to-sky-400 flex items-center justify-center text-white font-bold text-xs shadow-xs"
+                class="w-7 h-7 rounded-lg bg-gradient-to-tr from-sky-500 to-sky-400 flex items-center justify-center text-white font-bold text-xs shadow-xs shrink-0"
               >
                 TQ
               </div>
-              <span class="font-bold text-slate-800 text-sm tracking-tight truncate">
+              <span class="font-bold text-slate-800 text-xs sm:text-sm tracking-tight truncate hidden [min-width:360px]:inline">
                 {{ t('common.brandName') }}
               </span>
             </div>
@@ -511,7 +536,7 @@ async function handleLogout() {
                 </div>
               </template>
               <template #content>
-                <div class="w-72 max-w-[85vw] divide-y divide-slate-100 max-h-80 overflow-y-auto leading-normal">
+                <div class="w-72 max-w-[calc(100vw-32px)] divide-y divide-slate-100 max-h-80 overflow-y-auto leading-normal">
                   <div class="py-2.5 flex items-start gap-2.5 hover:bg-slate-50 p-2 rounded-lg cursor-pointer">
                     <CheckCircleOutlined class="text-sky-500 text-base mt-0.5 shrink-0" />
                     <div>
@@ -599,10 +624,9 @@ async function handleLogout() {
         </a-layout-header>
 
         <a-layout-content class="flex-1 min-h-0 overflow-y-auto overflow-x-hidden min-w-0 flex flex-col admin-main-scroll">
-          <div class="p-3 sm:p-5 md:p-6 pb-16 sm:pb-24 flex-1 min-h-[calc(100vh-64px-52px)]">
+          <div class="px-2 py-3 sm:p-5 md:p-6 lg:p-8 pb-16 sm:pb-24 flex-1 min-h-[calc(100vh-64px-52px)] max-w-[1920px] mx-auto w-full">
             <RouterView />
           </div>
-
         </a-layout-content>
       </a-layout>
     </a-layout>
@@ -640,5 +664,25 @@ async function handleLogout() {
   width: calc(100% - 16px);
   margin-top: 4px;
   margin-bottom: 4px;
+}
+
+:deep(.admin-mobile-drawer.ant-drawer .ant-drawer-content-wrapper) {
+  width: 280px !important;
+  max-width: 82vw !important;
+  border-top-right-radius: 20px;
+  border-bottom-right-radius: 20px;
+  overflow: hidden;
+  box-shadow: 12px 0 36px rgba(0, 0, 0, 0.5) !important;
+}
+
+:deep(.admin-mobile-drawer.ant-drawer .ant-drawer-content) {
+  border-top-right-radius: 20px;
+  border-bottom-right-radius: 20px;
+  background-color: #0b1120 !important;
+}
+
+:deep(.admin-mobile-drawer.ant-drawer .ant-drawer-mask) {
+  backdrop-filter: blur(4px);
+  background-color: rgba(15, 23, 42, 0.65) !important;
 }
 </style>

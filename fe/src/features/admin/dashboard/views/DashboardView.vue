@@ -232,98 +232,98 @@ const orderColumns = [
 
     <a-row :gutter="[12, 12]">
 
-      <a-col :xs="24" :sm="12" :lg="6">
-        <a-card :bordered="false" class="!rounded-2xl !shadow-xs hover:!shadow-md transition-shadow">
+      <a-col :xs="12" :sm="12" :lg="6">
+        <a-card :bordered="false" class="!rounded-2xl !shadow-xs hover:!shadow-md transition-shadow !h-full">
           <div class="flex items-start justify-between">
             <div class="min-w-0">
-              <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1 truncate">
+              <p class="text-[11px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1 truncate">
                 {{ t('admin.todayRevenue') }}
               </p>
-              <div class="text-xl sm:text-2xl font-black text-slate-800 leading-none truncate">
-                4.680.000 <span class="text-xs sm:text-sm font-semibold text-slate-500">₫</span>
+              <div class="text-base sm:text-2xl font-black text-slate-800 leading-none truncate">
+                4.680.000 <span class="text-[11px] sm:text-sm font-semibold text-slate-500">₫</span>
               </div>
             </div>
-            <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-sky-50 flex items-center justify-center text-sky-500 text-lg sm:text-xl shadow-xs shrink-0">
+            <div class="w-8 h-8 sm:w-11 sm:h-11 rounded-xl bg-sky-50 flex items-center justify-center text-sky-500 text-sm sm:text-xl shadow-xs shrink-0">
               <DollarCircleOutlined />
             </div>
           </div>
-          <div class="flex items-center gap-1.5 mt-3 pt-3 border-t border-slate-100 text-xs">
+          <div class="flex items-center gap-1.5 mt-2.5 sm:mt-3 pt-2.5 sm:pt-3 border-t border-slate-100 text-[11px] sm:text-xs">
             <span class="text-sky-600 font-semibold flex items-center gap-0.5">
               <ArrowUpOutlined /> +15.8%
             </span>
-            <span class="text-slate-400 truncate">{{ t('admin.vsYesterday') }}</span>
+            <span class="text-slate-400 truncate hidden sm:inline">{{ t('admin.vsYesterday') }}</span>
           </div>
         </a-card>
       </a-col>
 
-      <a-col :xs="24" :sm="12" :lg="6">
-        <a-card :bordered="false" class="!rounded-2xl !shadow-xs hover:!shadow-md transition-shadow">
+      <a-col :xs="12" :sm="12" :lg="6">
+        <a-card :bordered="false" class="!rounded-2xl !shadow-xs hover:!shadow-md transition-shadow !h-full">
           <div class="flex items-start justify-between">
             <div class="min-w-0">
-              <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1 truncate">
+              <p class="text-[11px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1 truncate">
                 {{ t('admin.newOrders') }}
               </p>
-              <div class="text-xl sm:text-2xl font-black text-slate-800 leading-none truncate">
-                28 <span class="text-xs sm:text-sm font-semibold text-slate-500">{{ t('admin.ordersUnit') }}</span>
+              <div class="text-base sm:text-2xl font-black text-slate-800 leading-none truncate">
+                28 <span class="text-[11px] sm:text-sm font-semibold text-slate-500">{{ t('admin.ordersUnit') }}</span>
               </div>
             </div>
-            <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-cyan-50 flex items-center justify-center text-cyan-600 text-lg sm:text-xl shadow-xs shrink-0">
+            <div class="w-8 h-8 sm:w-11 sm:h-11 rounded-xl bg-cyan-50 flex items-center justify-center text-cyan-600 text-sm sm:text-xl shadow-xs shrink-0">
               <ShoppingCartOutlined />
             </div>
           </div>
-          <div class="flex items-center justify-between mt-3 pt-3 border-t border-slate-100 text-xs">
+          <div class="flex items-center justify-between mt-2.5 sm:mt-3 pt-2.5 sm:pt-3 border-t border-slate-100 text-[11px] sm:text-xs">
             <span class="text-amber-600 font-medium flex items-center gap-1 truncate">
               <ClockCircleOutlined /> {{ t('admin.pendingCount', { count: 4 }) }}
             </span>
-            <span class="text-sky-600 font-semibold shrink-0">+8%</span>
+            <span class="text-sky-600 font-semibold shrink-0 hidden sm:inline">+8%</span>
           </div>
         </a-card>
       </a-col>
 
-      <a-col :xs="24" :sm="12" :lg="6">
-        <a-card :bordered="false" class="!rounded-2xl !shadow-xs hover:!shadow-md transition-shadow">
+      <a-col :xs="12" :sm="12" :lg="6">
+        <a-card :bordered="false" class="!rounded-2xl !shadow-xs hover:!shadow-md transition-shadow !h-full">
           <div class="flex items-start justify-between">
             <div class="min-w-0">
-              <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1 truncate">
+              <p class="text-[11px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1 truncate">
                 {{ t('admin.products') }}
               </p>
-              <div class="text-xl sm:text-2xl font-black text-slate-800 leading-none truncate">
-                542 <span class="text-xs sm:text-sm font-semibold text-slate-500">{{ t('admin.itemsUnit') }}</span>
+              <div class="text-base sm:text-2xl font-black text-slate-800 leading-none truncate">
+                542 <span class="text-[11px] sm:text-sm font-semibold text-slate-500">{{ t('admin.itemsUnit') }}</span>
               </div>
             </div>
-            <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 text-lg sm:text-xl shadow-xs shrink-0">
+            <div class="w-8 h-8 sm:w-11 sm:h-11 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 text-sm sm:text-xl shadow-xs shrink-0">
               <AppstoreOutlined />
             </div>
           </div>
-          <div class="flex items-center gap-1.5 mt-3 pt-3 border-t border-slate-100 text-xs">
+          <div class="flex items-center gap-1.5 mt-2.5 sm:mt-3 pt-2.5 sm:pt-3 border-t border-slate-100 text-[11px] sm:text-xs">
             <span class="text-rose-500 font-semibold flex items-center gap-0.5">
               <WarningOutlined /> {{ t('admin.lowStockCount', { count: 4 }) }}
             </span>
-            <span class="text-slate-400 truncate">{{ t('admin.aboutToRunOut') }}</span>
+            <span class="text-slate-400 truncate hidden sm:inline">{{ t('admin.aboutToRunOut') }}</span>
           </div>
         </a-card>
       </a-col>
 
-      <a-col :xs="24" :sm="12" :lg="6">
-        <a-card :bordered="false" class="!rounded-2xl !shadow-xs hover:!shadow-md transition-shadow">
+      <a-col :xs="12" :sm="12" :lg="6">
+        <a-card :bordered="false" class="!rounded-2xl !shadow-xs hover:!shadow-md transition-shadow !h-full">
           <div class="flex items-start justify-between">
             <div class="min-w-0">
-              <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1 truncate">
+              <p class="text-[11px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1 truncate">
                 {{ t('admin.customers') }}
               </p>
-              <div class="text-xl sm:text-2xl font-black text-slate-800 leading-none truncate">
-                136 <span class="text-xs sm:text-sm font-semibold text-slate-500">{{ t('admin.membersUnit') }}</span>
+              <div class="text-base sm:text-2xl font-black text-slate-800 leading-none truncate">
+                136 <span class="text-[11px] sm:text-sm font-semibold text-slate-500">{{ t('admin.membersUnit') }}</span>
               </div>
             </div>
-            <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600 text-lg sm:text-xl shadow-xs shrink-0">
+            <div class="w-8 h-8 sm:w-11 sm:h-11 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600 text-sm sm:text-xl shadow-xs shrink-0">
               <TeamOutlined />
             </div>
           </div>
-          <div class="flex items-center gap-1.5 mt-3 pt-3 border-t border-slate-100 text-xs">
+          <div class="flex items-center gap-1.5 mt-2.5 sm:mt-3 pt-2.5 sm:pt-3 border-t border-slate-100 text-[11px] sm:text-xs">
             <span class="text-sky-600 font-semibold flex items-center gap-0.5">
               <ArrowUpOutlined /> +5
             </span>
-            <span class="text-slate-400 truncate">{{ t('admin.newCustomersToday') }}</span>
+            <span class="text-slate-400 truncate hidden sm:inline">{{ t('admin.newCustomersToday') }}</span>
           </div>
         </a-card>
       </a-col>
@@ -347,56 +347,102 @@ const orderColumns = [
             </a-button>
           </template>
 
-          <a-table
-            :columns="orderColumns"
-            :dataSource="recentOrders"
-            :pagination="false"
-            size="middle"
-            :scroll="{ x: 700 }"
-          >
+          <!-- Desktop Table (Tablet Landscape, Laptop & Desktop) -->
+          <div class="hidden md:block">
+            <a-table
+              :columns="orderColumns"
+              :dataSource="recentOrders"
+              :pagination="false"
+              size="middle"
+              :scroll="{ x: 700 }"
+            >
+              <template #bodyCell="{ column, record }">
+                <template v-if="column.key === 'code'">
+                  <span class="font-mono font-bold text-slate-800 text-xs">{{ record.code }}</span>
+                  <span class="block text-[10px] text-slate-400">{{ record.time }}</span>
+                </template>
 
-            <template #bodyCell="{ column, record }">
-              <template v-if="column.key === 'code'">
-                <span class="font-mono font-bold text-slate-800 text-xs">{{ record.code }}</span>
-                <span class="block text-[10px] text-slate-400">{{ record.time }}</span>
+                <template v-else-if="column.key === 'customer'">
+                  <div class="font-medium text-slate-800 text-xs leading-tight">{{ record.customer }}</div>
+                  <div class="text-[11px] text-slate-400">{{ record.phone }}</div>
+                </template>
+
+                <template v-else-if="column.key === 'total'">
+                  <span class="font-bold text-sky-600 text-xs">{{ record.total }}</span>
+                </template>
+
+                <template v-else-if="column.key === 'paymentMethod'">
+                  <a-tag
+                    :color="record.paymentMethod === 'VietQR' ? 'blue' : record.paymentMethod === 'MoMo' ? 'magenta' : 'default'"
+                    class="!text-[11px]"
+                  >
+                    {{ record.paymentMethod }}
+                  </a-tag>
+                </template>
+
+                <template v-else-if="column.key === 'status'">
+                  <a-tag :color="record.statusColor" class="!text-[11px]">
+                    {{ record.statusText }}
+                  </a-tag>
+                </template>
+
+                <template v-else-if="column.key === 'action'">
+                  <a-button
+                    type="text"
+                    size="small"
+                    class="text-sky-600 hover:text-sky-700"
+                    @click="viewOrderDetail(record)"
+                  >
+                    <EyeOutlined />
+                  </a-button>
+                </template>
               </template>
+            </a-table>
+          </div>
 
-              <template v-else-if="column.key === 'customer'">
-                <div class="font-medium text-slate-800 text-xs leading-tight">{{ record.customer }}</div>
-                <div class="text-[11px] text-slate-400">{{ record.phone }}</div>
-              </template>
+          <!-- Mobile Order Card List (< 768px: Phone & Tablet Portrait) -->
+          <div class="md:hidden divide-y divide-slate-100 -mx-3 -my-2 sm:mx-0 sm:my-0">
+            <div
+              v-for="order in recentOrders"
+              :key="order.key"
+              class="p-3 sm:p-4 hover:bg-slate-50 transition-colors flex flex-col gap-2 cursor-pointer"
+              @click="viewOrderDetail(order)"
+            >
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="font-mono font-bold text-slate-900 text-xs">{{ order.code }}</span>
+                  <a-tag :color="order.statusColor" class="!text-[10px] !mr-0">{{ order.statusText }}</a-tag>
+                </div>
+                <span class="font-bold text-sky-600 text-sm">{{ order.total }}</span>
+              </div>
 
-              <template v-else-if="column.key === 'total'">
-                <span class="font-bold text-sky-600 text-xs">{{ record.total }}</span>
-              </template>
+              <div class="flex items-center justify-between text-xs text-slate-500">
+                <span class="font-medium text-slate-700">{{ order.customer }} ({{ order.phone }})</span>
+                <span class="text-[10px] text-slate-400">{{ order.time }}</span>
+              </div>
 
-              <template v-else-if="column.key === 'paymentMethod'">
+              <p class="text-[11px] text-slate-600 line-clamp-1 bg-slate-50 p-1.5 rounded-lg border border-slate-100">
+                {{ order.items }}
+              </p>
+
+              <div class="flex items-center justify-between pt-1">
                 <a-tag
-                  :color="record.paymentMethod === 'VietQR' ? 'blue' : record.paymentMethod === 'MoMo' ? 'magenta' : 'default'"
-                  class="!text-[11px]"
+                  :color="order.paymentMethod === 'VietQR' ? 'blue' : order.paymentMethod === 'MoMo' ? 'magenta' : 'default'"
+                  class="!text-[10px]"
                 >
-                  {{ record.paymentMethod }}
+                  {{ order.paymentMethod }}
                 </a-tag>
-              </template>
 
-              <template v-else-if="column.key === 'status'">
-                <a-tag :color="record.statusColor" class="!text-[11px]">
-                  {{ record.statusText }}
-                </a-tag>
-              </template>
-
-              <template v-else-if="column.key === 'action'">
-                <a-button
-                  type="text"
-                  size="small"
-                  class="text-sky-600 hover:text-sky-700"
-                  @click="viewOrderDetail(record)"
+                <button
+                  type="button"
+                  class="text-xs font-semibold text-sky-600 hover:text-sky-700 flex items-center gap-1 cursor-pointer py-1 px-2.5 rounded-lg bg-sky-50 transition-colors"
                 >
                   <EyeOutlined />
-                </a-button>
-              </template>
-            </template>
-          </a-table>
+                  <span>Xem chi tiết</span>
+                </button>
+              </div>
+            </div>
+          </div>
         </a-card>
 
         <a-card :bordered="false" class="!rounded-2xl !shadow-xs">

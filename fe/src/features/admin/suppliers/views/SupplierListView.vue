@@ -16,9 +16,12 @@ import { useSupplierStore } from '../stores/supplierStore'
 import SupplierFormModal from '../components/SupplierFormModal.vue'
 import { useToast } from '@/composables/useToast'
 import { useI18n } from '@/i18n'
+import { breakpointsTailwind, useBreakpoints } from '@vueuse/core'
 
 const toast = useToast()
 const { t } = useI18n()
+const breakpoints = useBreakpoints(breakpointsTailwind)
+const isMobile = breakpoints.smaller('md')
 
 const supplierStore = useSupplierStore()
 const { suppliers, isLoading } = storeToRefs(supplierStore)
@@ -132,19 +135,27 @@ onMounted(() => {
 <template>
   <div class="space-y-4 pb-12 sm:pb-16 overflow-x-hidden">
 
-    <div class="flex items-center justify-end gap-2.5 pb-0.5">
+    <!-- Page Header Bar: Balanced title + action -->
+    <div class="flex items-center justify-between gap-3">
+      <div>
+        <h1 class="text-lg sm:text-xl font-bold text-slate-800 tracking-tight leading-tight">
+          {{ t('admin.suppliers') }}
+        </h1>
+        <p class="text-xs text-slate-400 hidden sm:block mt-0.5">Danh sách các đối tác & nhà phân phối hàng hóa</p>
+      </div>
+
       <button
         type="button"
         @click="openCreateModal"
-        class="inline-flex items-center justify-center gap-2 px-4 h-9 rounded-lg bg-sky-600 hover:bg-sky-700 active:bg-sky-800 !text-white text-sm font-semibold shadow-xs transition-all active:scale-[0.98] cursor-pointer select-none"
+        class="inline-flex items-center justify-center gap-1.5 px-3.5 sm:px-4 h-9 rounded-xl bg-sky-600 hover:bg-sky-700 active:bg-sky-800 !text-white text-xs sm:text-sm font-semibold shadow-xs transition-all active:scale-[0.98] cursor-pointer select-none shrink-0"
       >
         <PlusOutlined class="text-xs text-white" />
         <span class="text-white leading-none">{{ t('supplier.addButton') }}</span>
       </button>
     </div>
 
-    <div class="bg-white rounded-xl border border-slate-200/90 p-3 sm:p-3.5 shadow-2xs flex flex-wrap items-center gap-3">
-      <div class="w-full sm:w-80">
+    <div class="bg-white rounded-xl border border-slate-200/90 p-3 sm:p-3.5 shadow-2xs flex flex-wrap items-center gap-2 sm:gap-3">
+      <div class="w-full sm:flex-1 sm:min-w-[200px] sm:max-w-xs md:max-w-sm">
         <a-input
           v-model:value="filters.search"
           :placeholder="t('supplier.searchPlaceholder')"
@@ -161,7 +172,7 @@ onMounted(() => {
       <a-select
         v-model:value="filters.is_active"
         :placeholder="t('supplier.filterStatus')"
-        class="w-44 !rounded-lg !text-sm"
+        class="w-full sm:w-44 !rounded-lg !text-sm"
         allow-clear
         size="middle"
         @change="handleFilterChange"
@@ -181,7 +192,8 @@ onMounted(() => {
     </div>
 
     <div v-else class="bg-white rounded-xl border border-slate-200/90 shadow-2xs overflow-hidden">
-      <div class="overflow-x-auto">
+      <!-- Desktop Table View (Tablet Landscape & Desktop) -->
+      <div class="hidden md:block overflow-x-auto">
         <table class="w-full text-sm">
           <thead>
             <tr class="bg-slate-50/80 border-b border-slate-200/80">
@@ -269,7 +281,7 @@ onMounted(() => {
                   <button
                     type="button"
                     @click="openEditModal(supplier)"
-                    class="w-8 h-8 rounded-lg hover:bg-slate-200/70 text-slate-400 hover:text-slate-800 flex items-center justify-center transition-colors cursor-pointer"
+                    class="w-8 h-8 rounded-lg hover:bg-slate-200/70 text-slate-400 hover:text-slate-800 flex items-center justify-center transition-colors cursor-pointer touch-target-min"
                     :title="t('supplier.editBtn')"
                   >
                     <EditOutlined class="text-sm" />
@@ -285,7 +297,7 @@ onMounted(() => {
                   >
                     <button
                       type="button"
-                      class="w-8 h-8 rounded-lg hover:bg-rose-50 text-slate-400 hover:text-rose-600 flex items-center justify-center transition-colors cursor-pointer"
+                      class="w-8 h-8 rounded-lg hover:bg-rose-50 text-slate-400 hover:text-rose-600 flex items-center justify-center transition-colors cursor-pointer touch-target-min"
                       :title="t('supplier.deleteBtn')"
                     >
                       <DeleteOutlined class="text-sm" />
@@ -298,11 +310,92 @@ onMounted(() => {
         </table>
       </div>
 
+      <!-- Mobile & Tablet Portrait Cards (< 768px): Modern & Ergonomic -->
+      <div class="md:hidden divide-y divide-slate-100">
+        <div
+          v-for="supplier in suppliers"
+          :key="supplier.id"
+          class="p-3.5 sm:p-4 hover:bg-slate-50/80 transition-colors flex flex-col gap-2.5"
+        >
+          <!-- Top Row: Code + Name + Status Switch -->
+          <div class="flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2 min-w-0">
+              <span class="font-mono text-xs font-bold text-sky-700 bg-sky-50 border border-sky-200/90 px-2 py-0.5 rounded-md shrink-0">
+                {{ supplier.code }}
+              </span>
+              <span
+                class="font-bold text-slate-800 text-sm hover:text-sky-600 cursor-pointer truncate"
+                @click="openViewModal(supplier)"
+              >
+                {{ supplier.name }}
+              </span>
+            </div>
+
+            <div class="flex items-center gap-2 shrink-0">
+              <span class="text-[11px] font-medium" :class="supplier.is_active ? 'text-emerald-600' : 'text-slate-400'">
+                {{ supplier.is_active ? 'Hoạt động' : 'Tắt' }}
+              </span>
+              <a-switch
+                :checked="supplier.is_active"
+                size="small"
+                @change="handleToggleStatus(supplier)"
+              />
+            </div>
+          </div>
+
+          <!-- Metadata Box -->
+          <div class="text-xs text-slate-600 space-y-1.5 bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+            <div v-if="supplier.contact_person || getProvinceName(supplier)" class="flex items-center gap-1.5">
+              <span v-if="supplier.contact_person">LH: <strong class="text-slate-800">{{ supplier.contact_person }}</strong></span>
+              <span v-if="supplier.contact_person && getProvinceName(supplier)">•</span>
+              <span v-if="getProvinceName(supplier)" class="text-slate-500">{{ getProvinceName(supplier) }}</span>
+            </div>
+            <div class="flex flex-wrap items-center gap-3 text-[11px]">
+              <a v-if="supplier.phone" :href="`tel:${supplier.phone}`" class="text-sky-600 font-medium flex items-center gap-1 hover:underline">
+                <PhoneOutlined class="text-[10px]" /> {{ supplier.phone }}
+              </a>
+              <span v-if="supplier.bank_account" class="text-slate-600 font-mono flex items-center gap-1">
+                <BankOutlined class="text-amber-500 text-[10px]" /> {{ supplier.bank_account }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Bottom Action Bar: Icon buttons on right -->
+          <div class="flex items-center justify-end pt-2 border-t border-slate-100 gap-1.5">
+            <button
+              type="button"
+              @click="openEditModal(supplier)"
+              class="w-8 h-8 rounded-lg bg-white border border-slate-200/90 hover:bg-sky-50 hover:border-sky-300 text-slate-600 hover:text-sky-600 flex items-center justify-center transition-colors cursor-pointer shadow-2xs"
+              :title="t('supplier.editBtn')"
+            >
+              <EditOutlined class="text-sm" />
+            </button>
+
+            <a-popconfirm
+              :title="t('supplier.confirmDelete')"
+              :ok-text="t('supplier.deleteBtn')"
+              :cancel-text="t('supplier.cancelBtn')"
+              ok-type="danger"
+              placement="left"
+              @confirm="handleDelete(supplier)"
+            >
+              <button
+                type="button"
+                class="w-8 h-8 rounded-lg bg-white border border-slate-200/90 hover:bg-rose-50 hover:border-rose-300 text-slate-400 hover:text-rose-600 flex items-center justify-center transition-colors cursor-pointer shadow-2xs"
+                :title="t('supplier.deleteBtn')"
+              >
+                <DeleteOutlined class="text-sm" />
+              </button>
+            </a-popconfirm>
+          </div>
+        </div>
+      </div>
+
       <div
         v-if="pagination.total > 0"
-        class="border-t border-slate-100 px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+        class="border-t border-slate-100 px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-3"
       >
-        <span class="text-xs text-slate-500">
+        <span class="text-xs sm:text-sm text-slate-500 text-center sm:text-left">
           {{ t('supplier.showingCount', { count: suppliers.length, total: pagination.total }) }}
         </span>
         <a-pagination
@@ -310,8 +403,9 @@ onMounted(() => {
           v-model:pageSize="pagination.pageSize"
           :total="pagination.total"
           :page-size-options="['10', '20', '50', '100']"
-          :show-size-changer="true"
+          :show-size-changer="!isMobile"
           size="small"
+          class="flex justify-center sm:justify-end"
           @change="handlePageChange"
         />
       </div>

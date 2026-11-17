@@ -7,7 +7,6 @@ import {
   DeleteOutlined,
   PlusOutlined,
   PictureOutlined,
-  WarningOutlined,
   BarcodeOutlined,
   InboxOutlined,
   CopyOutlined,
@@ -20,9 +19,12 @@ import ProductDetailModal from '../components/ProductDetailModal.vue'
 import { formatPrice, calculateMargin, copyToClipboard } from '@/utils/format'
 import { useToast } from '@/composables/useToast'
 import { useI18n } from '@/i18n'
+import { breakpointsTailwind, useBreakpoints } from '@vueuse/core'
 
 const toast = useToast()
 const { t } = useI18n()
+const breakpoints = useBreakpoints(breakpointsTailwind)
+const isMobile = breakpoints.smaller('md')
 
 const productStore = useProductStore()
 const { products, isLoading } = storeToRefs(productStore)
@@ -180,9 +182,10 @@ onMounted(() => {
 <template>
   <div class="space-y-4 pb-12 sm:pb-16 overflow-x-hidden">
 
-    <div class="bg-white rounded-2xl border border-slate-200/90 p-3 sm:p-3.5 shadow-2xs flex flex-wrap items-center gap-2.5 sm:gap-3">
+    <!-- Adaptive Filter Bar -->
+    <div class="bg-white rounded-2xl border border-slate-200/90 p-3 sm:p-3.5 shadow-2xs flex flex-wrap items-center gap-2 sm:gap-3">
 
-      <div class="flex-1 min-w-[240px] max-w-sm">
+      <div class="w-full sm:flex-1 sm:min-w-[200px] sm:max-w-sm">
         <a-input
           v-model:value="filters.search"
           :placeholder="t('product.searchPlaceholder')"
@@ -196,41 +199,43 @@ onMounted(() => {
         </a-input>
       </div>
 
-      <a-select
-        v-model:value="filters.category_id"
-        :placeholder="t('product.filterCategory')"
-        class="w-44 !rounded-xl !text-xs sm:!text-sm"
-        allow-clear
-        size="middle"
-        @change="handleFilterChange"
-      >
-        <a-select-option value="">{{ t('product.allCategories') }}</a-select-option>
-        <a-select-option
-          v-for="cat in categoryStore.allCategories"
-          :key="cat.id"
-          :value="cat.id"
+      <div class="flex items-center gap-2 w-full sm:w-auto">
+        <a-select
+          v-model:value="filters.category_id"
+          :placeholder="t('product.filterCategory')"
+          class="flex-1 sm:w-44 !rounded-xl !text-xs sm:!text-sm"
+          allow-clear
+          size="middle"
+          @change="handleFilterChange"
         >
-          {{ cat.name }}
-        </a-select-option>
-      </a-select>
+          <a-select-option value="">{{ t('product.allCategories') }}</a-select-option>
+          <a-select-option
+            v-for="cat in categoryStore.allCategories"
+            :key="cat.id"
+            :value="cat.id"
+          >
+            {{ cat.name }}
+          </a-select-option>
+        </a-select>
 
-      <a-select
-        v-model:value="filters.stock_status"
-        placeholder="Tình trạng tồn kho"
-        class="w-40 !rounded-xl !text-xs sm:!text-sm"
-        size="middle"
-        @change="handleFilterChange"
-      >
-        <a-select-option value="all">Tất cả tồn kho</a-select-option>
-        <a-select-option value="low_stock">Sắp hết hàng</a-select-option>
-        <a-select-option value="out_of_stock">Đã hết hàng</a-select-option>
-      </a-select>
+        <a-select
+          v-model:value="filters.stock_status"
+          placeholder="Tình trạng tồn kho"
+          class="flex-1 sm:w-40 !rounded-xl !text-xs sm:!text-sm"
+          size="middle"
+          @change="handleFilterChange"
+        >
+          <a-select-option value="all">Tất cả tồn kho</a-select-option>
+          <a-select-option value="low_stock">Sắp hết hàng</a-select-option>
+          <a-select-option value="out_of_stock">Đã hết hàng</a-select-option>
+        </a-select>
+      </div>
 
-      <div class="ml-auto flex items-center shrink-0">
+      <div class="w-full sm:w-auto sm:ml-auto flex items-center shrink-0 pt-1 sm:pt-0">
         <button
           type="button"
           @click="openCreateModal"
-          class="inline-flex items-center justify-center gap-2 px-4 h-9 rounded-xl bg-sky-600 hover:bg-sky-700 active:bg-sky-800 !text-white text-sm font-semibold shadow-xs transition-all active:scale-[0.98] cursor-pointer select-none"
+          class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 h-9 rounded-xl bg-sky-600 hover:bg-sky-700 active:bg-sky-800 !text-white text-sm font-semibold shadow-xs transition-all active:scale-[0.98] cursor-pointer select-none touch-target-min"
         >
           <PlusOutlined class="text-xs text-white" />
           <span class="text-white leading-none">{{ t('product.addButton') }}</span>
@@ -248,16 +253,16 @@ onMounted(() => {
 
     <div
       v-else
-      class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-5 gap-3.5 sm:gap-4"
+      class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2.5 sm:gap-4"
     >
       <div
         v-for="product in products"
         :key="product.id"
-        class="bg-white rounded-2xl border border-slate-200/90 shadow-2xs hover:shadow-lg hover:border-sky-300/80 transition-all duration-200 flex flex-col overflow-hidden group"
+        class="bg-white rounded-xl sm:rounded-2xl border border-slate-200/90 shadow-2xs hover:shadow-lg hover:border-sky-300/80 transition-all duration-200 flex flex-col overflow-hidden group"
       >
 
         <div
-          class="relative aspect-[16/11] bg-slate-100 overflow-hidden select-none cursor-pointer"
+          class="relative aspect-[4/3] sm:aspect-[16/11] bg-slate-100 overflow-hidden select-none cursor-pointer"
           @click="openDetailModal(product)"
         >
           <img
@@ -271,122 +276,105 @@ onMounted(() => {
             v-else
             class="w-full h-full flex flex-col items-center justify-center text-slate-300 bg-gradient-to-br from-slate-50 to-slate-100 group-hover:text-slate-400 transition-colors"
           >
-            <PictureOutlined class="text-3xl mb-1 opacity-70" />
-            <span class="text-[11px] font-medium text-slate-400">Chưa có ảnh</span>
+            <PictureOutlined class="text-2xl sm:text-3xl mb-1 opacity-70" />
+            <span class="text-xs font-medium text-slate-400">Chưa có ảnh</span>
           </div>
 
-          <div class="absolute top-2.5 left-2.5 z-10">
+          <!-- Category floating pill -->
+          <div class="absolute top-1.5 left-1.5 sm:top-2.5 sm:left-2.5 z-10">
             <span
               v-if="product.category?.name"
-              class="inline-flex items-center gap-1 bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-lg text-xs font-semibold text-slate-700 shadow-2xs border border-white/60"
+              class="inline-flex items-center gap-1 bg-white/95 backdrop-blur-md px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md sm:rounded-lg text-xs font-semibold text-slate-700 shadow-2xs border border-white/60 truncate max-w-[120px] sm:max-w-none"
             >
               {{ product.category.name }}
             </span>
-            <span
-              v-else
-              class="inline-flex items-center bg-white/80 backdrop-blur-md px-2 py-0.5 rounded text-[11px] text-slate-400"
-            >
-              Chưa phân loại
-            </span>
           </div>
 
-          <div class="absolute bottom-2 left-2.5 right-2.5 z-10 flex items-center justify-between">
+          <!-- Stock Status Badge -->
+          <div class="absolute bottom-1.5 left-1.5 right-1.5 sm:bottom-2 sm:left-2.5 sm:right-2.5 z-10 flex items-center justify-between">
             <span
               v-if="product.stock_quantity <= 0"
-              class="inline-flex items-center gap-1 bg-rose-600/95 backdrop-blur-md text-white text-[11px] font-bold px-2 py-0.5 rounded-md shadow-xs"
+              class="inline-flex items-center bg-rose-600/95 backdrop-blur-md text-white text-xs font-bold px-2 py-0.5 rounded-md shadow-xs"
             >
-              <WarningOutlined class="text-[10px]" />
               Hết hàng
             </span>
             <span
               v-else-if="product.stock_quantity <= product.min_stock"
-              class="inline-flex items-center gap-1 bg-amber-500/95 backdrop-blur-md text-white text-[11px] font-bold px-2 py-0.5 rounded-md shadow-xs"
+              class="inline-flex items-center bg-amber-500/95 backdrop-blur-md text-white text-xs font-bold px-2 py-0.5 rounded-md shadow-xs truncate"
             >
-              <WarningOutlined class="text-[10px]" />
-              Sắp hết (Còn {{ product.stock_quantity }})
+              Còn {{ product.stock_quantity }}
             </span>
             <span
               v-else
-              class="inline-flex items-center bg-slate-900/70 backdrop-blur-md text-white text-[11px] font-medium px-2 py-0.5 rounded-md shadow-xs"
+              class="inline-flex items-center bg-slate-900/70 backdrop-blur-md text-white text-xs font-medium px-2 py-0.5 rounded-md shadow-xs truncate"
             >
-              Còn {{ product.stock_quantity }} {{ product.unit?.name || 'mặt hàng' }}
+              Còn {{ product.stock_quantity }}
             </span>
           </div>
         </div>
 
-        <div class="p-4 flex-1 flex flex-col justify-between space-y-3">
+        <!-- Product Card Body -->
+        <div class="p-3 sm:p-4 flex-1 flex flex-col justify-between space-y-2 sm:space-y-3">
           <div>
-
-            <div class="flex flex-wrap items-center justify-between gap-1.5 mb-2">
-              <span class="font-mono text-xs font-bold text-sky-700 bg-sky-50 border border-sky-200/90 px-2 py-0.5 rounded-md shrink-0">
+            <!-- SKU & Barcode - always visible on all devices -->
+            <div class="flex flex-wrap items-center justify-between gap-1.5 mb-1.5">
+              <span class="font-mono text-xs font-bold text-sky-700 bg-sky-50 border border-sky-200/90 px-2 py-0.5 rounded shrink-0">
                 {{ product.code }}
               </span>
               <span
                 v-if="product.barcode"
                 @click.stop="openBarcodeModal(product)"
-                class="inline-flex items-center gap-1 font-mono text-[11px] font-semibold text-slate-700 bg-slate-100 hover:bg-sky-50 hover:text-sky-700 hover:border-sky-300 border border-slate-200/90 px-2 py-0.5 rounded-md tracking-tight shadow-2xs cursor-pointer transition-colors"
+                class="inline-flex items-center gap-1 font-mono text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-sky-50 hover:text-sky-700 hover:border-sky-300 border border-slate-200/90 px-2 py-0.5 rounded tracking-tight shadow-2xs cursor-pointer transition-colors"
                 :title="'Bấm để xem thông tin mã vạch: ' + product.barcode"
               >
                 <BarcodeOutlined class="text-slate-500 text-xs" />
-                <span>{{ product.barcode }}</span>
+                <span class="truncate max-w-[120px] sm:max-w-none">{{ product.barcode }}</span>
               </span>
             </div>
 
+            <!-- Title: Click to open detail modal -->
             <h4
-              class="font-semibold text-slate-800 group-hover:text-sky-600 transition-colors line-clamp-2 text-sm leading-snug cursor-pointer min-h-[40px]"
+              class="font-semibold text-slate-800 hover:text-sky-600 transition-colors line-clamp-2 text-sm leading-snug cursor-pointer min-h-[38px]"
               @click="openDetailModal(product)"
-              :title="'Xem thông tin: ' + product.name"
+              :title="'Bấm để xem chi tiết: ' + product.name"
             >
               {{ product.name }}
             </h4>
 
-            <div v-if="product.supplier?.name" class="mt-1 text-[11px] text-slate-400 truncate" :title="product.supplier.name">
+            <div v-if="product.supplier?.name" class="mt-1 text-xs text-slate-400 truncate" :title="product.supplier.name">
               NCC: {{ product.supplier.name }}
             </div>
           </div>
 
           <div class="pt-2 border-t border-slate-100 space-y-2">
-
-            <div class="flex items-baseline justify-between gap-2">
+            <!-- Pricing -->
+            <div class="flex items-baseline justify-between gap-1">
               <div>
                 <span class="text-xs text-slate-400 block leading-tight">Giá bán</span>
-                <div class="flex items-baseline gap-1">
-                  <span class="text-lg font-bold text-slate-900 tracking-tight">
+                <div class="flex items-baseline gap-1 flex-wrap">
+                  <span class="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
                     {{ formatPrice(product.selling_price) }}
                   </span>
                   <span v-if="product.unit?.name" class="text-xs text-slate-500 font-medium">
                     / {{ product.unit.name }}
                   </span>
                 </div>
-
-                <span
-                  v-if="product.product_units && product.product_units.length > 1"
-                  class="inline-block text-[10px] font-semibold text-sky-700 bg-sky-50 border border-sky-200/80 px-1.5 py-0.2 rounded mt-0.5"
-                  :title="product.product_units.map(u => `${u.unit?.name || 'ĐVT'}: ${formatPrice(u.selling_price)}`).join(' | ')"
-                >
-                  +{{ product.product_units.length - 1 }} đơn vị quy đổi
-                </span>
               </div>
 
-              <div v-if="product.cost_price > 0" class="text-right">
-                <span class="text-[11px] text-slate-400 block leading-tight">Giá vốn</span>
+              <div v-if="product.cost_price > 0" class="text-right hidden xs:block">
+                <span class="text-xs text-slate-400 block leading-tight">Giá vốn</span>
                 <span class="text-xs font-semibold text-slate-600">
                   {{ formatPrice(product.cost_price) }}
-                </span>
-                <span
-                  v-if="calculateMargin(product.selling_price, product.cost_price) !== null"
-                  class="ml-1 text-[10px] font-bold text-emerald-600 bg-emerald-50 px-1 py-0.2 rounded"
-                >
-                  +{{ calculateMargin(product.selling_price, product.cost_price) }}%
                 </span>
               </div>
             </div>
 
+            <!-- Inventory bar -->
             <div>
-              <div class="flex items-center justify-between text-[11px] mb-1">
-                <span class="text-slate-400">Tồn kho</span>
+              <div class="flex items-center justify-between text-xs mb-1">
+                <span class="text-slate-400">Tồn</span>
                 <span class="font-semibold text-slate-700">
-                  {{ product.stock_quantity }} / min {{ product.min_stock }}
+                  {{ product.stock_quantity }} / {{ product.min_stock }}
                 </span>
               </div>
               <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
@@ -406,11 +394,12 @@ onMounted(() => {
           </div>
         </div>
 
-        <div class="px-3.5 py-2.5 bg-slate-50/70 border-t border-slate-100 flex items-center justify-end gap-1.5">
+        <!-- Card Action Footer: Icon buttons on right -->
+        <div class="px-3 py-2 bg-slate-50/80 border-t border-slate-100 flex items-center justify-end gap-1.5">
           <button
             type="button"
-            @click="openEditModal(product)"
-            class="w-7 h-7 rounded-lg text-slate-400 hover:text-sky-600 hover:bg-sky-50 flex items-center justify-center transition-colors cursor-pointer"
+            @click.stop="openEditModal(product)"
+            class="w-8 h-8 rounded-lg bg-white border border-slate-200/90 hover:bg-sky-50 hover:border-sky-300 text-slate-600 hover:text-sky-600 flex items-center justify-center transition-colors cursor-pointer shadow-2xs"
             title="Chỉnh sửa sản phẩm"
           >
             <EditOutlined class="text-sm" />
@@ -426,7 +415,7 @@ onMounted(() => {
           >
             <button
               type="button"
-              class="w-7 h-7 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 flex items-center justify-center transition-colors cursor-pointer"
+              class="w-8 h-8 rounded-lg bg-white border border-slate-200/90 hover:bg-rose-50 hover:border-rose-300 text-slate-400 hover:text-rose-600 flex items-center justify-center transition-colors cursor-pointer shadow-2xs"
               title="Xóa sản phẩm"
             >
               <DeleteOutlined class="text-sm" />
@@ -436,11 +425,12 @@ onMounted(() => {
       </div>
     </div>
 
+    <!-- Pagination: Uniform across all screens -->
     <div
       v-if="pagination.total > 0"
       class="bg-white rounded-xl border border-slate-200/90 px-4 py-3 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-3"
     >
-      <span class="text-xs text-slate-500">
+      <span class="text-xs sm:text-sm text-slate-500 text-center sm:text-left">
         {{ t('product.showingCount', { count: products.length, total: pagination.total }) }}
       </span>
 
@@ -448,9 +438,10 @@ onMounted(() => {
         v-model:current="pagination.current"
         v-model:pageSize="pagination.pageSize"
         :total="pagination.total"
-        :show-size-changer="true"
+        :show-size-changer="!isMobile"
         :page-size-options="['20', '40', '60', '100']"
         size="small"
+        class="flex justify-center sm:justify-end"
         @change="handlePageChange"
       />
     </div>
@@ -475,9 +466,10 @@ onMounted(() => {
       :title="null"
       :closable="false"
     >
-      <div v-if="selectedBarcodeProduct" class="p-2">
+      <div v-if="selectedBarcodeProduct" class="p-1 sm:p-3">
 
-        <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <!-- Modal Header -->
+        <div class="flex items-center justify-between pb-2.5 border-b border-slate-100">
           <div class="flex items-center gap-2 text-slate-800 font-bold text-sm">
             <BarcodeOutlined class="text-sky-600 text-base" />
             <span>{{ t('product.barcodeModalTitle') }}</span>
@@ -491,7 +483,8 @@ onMounted(() => {
           </button>
         </div>
 
-        <div class="my-4 bg-slate-50 p-3.5 rounded-xl border border-slate-100 space-y-1.5">
+        <!-- Product Summary Box -->
+        <div class="my-2.5 bg-slate-50 p-2.5 sm:p-3 rounded-xl border border-slate-100 space-y-1">
           <h4 class="text-sm font-bold text-slate-800 line-clamp-2">
             {{ selectedBarcodeProduct.name }}
           </h4>
@@ -501,7 +494,8 @@ onMounted(() => {
           </div>
         </div>
 
-        <div class="bg-white p-5 rounded-2xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center">
+        <!-- Barcode Display Container -->
+        <div class="bg-white p-3.5 sm:p-5 rounded-xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center">
 
           <div class="mb-2.5 flex items-center justify-center">
             <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-sky-50 text-sky-700 border border-sky-200/80 shadow-2xs">
@@ -636,11 +630,11 @@ onMounted(() => {
           </div>
         </div>
 
-        <div class="mt-5 pt-3 border-t border-slate-100 flex items-center justify-end">
+        <div class="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-end">
           <button
             type="button"
             @click="isBarcodeModalVisible = false"
-            class="px-4 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-semibold transition-colors cursor-pointer"
+            class="px-4 h-8 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-colors cursor-pointer"
           >
             {{ t('product.closeModal') }}
           </button>

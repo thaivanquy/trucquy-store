@@ -15,9 +15,12 @@ import UnitFormModal from '../components/UnitFormModal.vue'
 import UnitDetailDrawer from '../components/UnitDetailDrawer.vue'
 import { useToast } from '@/composables/useToast'
 import { useI18n } from '@/i18n'
+import { breakpointsTailwind, useBreakpoints } from '@vueuse/core'
 
 const toast = useToast()
 const { t } = useI18n()
+const breakpoints = useBreakpoints(breakpointsTailwind)
+const isMobile = breakpoints.smaller('md')
 
 const unitStore = useUnitStore()
 const { units, isLoading } = storeToRefs(unitStore)
@@ -174,19 +177,28 @@ onMounted(() => {
 <template>
   <div class="space-y-4 pb-12 sm:pb-16 overflow-x-hidden">
 
-    <div class="flex items-center justify-end gap-2.5 pb-0.5">
+    <!-- Page Header Bar: Balanced title + action -->
+    <div class="flex items-center justify-between gap-3">
+      <div>
+        <h1 class="text-lg sm:text-xl font-bold text-slate-800 tracking-tight leading-tight">
+          {{ t('admin.units') }}
+        </h1>
+        <p class="text-xs text-slate-400 hidden sm:block mt-0.5">Quản lý quy cách đóng gói và đơn vị tính sản phẩm</p>
+      </div>
+
       <button
         type="button"
         @click="openCreateModal"
-        class="inline-flex items-center justify-center gap-2 px-4 h-9 rounded-lg bg-sky-600 hover:bg-sky-700 active:bg-sky-800 !text-white text-sm font-semibold shadow-xs transition-all active:scale-[0.98] cursor-pointer select-none"
+        class="inline-flex items-center justify-center gap-1.5 px-3.5 sm:px-4 h-9 rounded-xl bg-sky-600 hover:bg-sky-700 active:bg-sky-800 !text-white text-xs sm:text-sm font-semibold shadow-xs transition-all active:scale-[0.98] cursor-pointer select-none shrink-0"
       >
         <PlusOutlined class="text-xs text-white" />
         <span class="text-white leading-none">{{ t('unit.addButton') }}</span>
       </button>
     </div>
 
-    <div class="bg-white rounded-xl border border-slate-200/90 p-3 sm:p-3.5 shadow-2xs flex flex-wrap items-center gap-3">
-      <div class="w-full sm:w-80">
+    <!-- Filter Bar -->
+    <div class="bg-white rounded-xl border border-slate-200/90 p-3 sm:p-3.5 shadow-2xs flex flex-wrap items-center gap-2 sm:gap-3">
+      <div class="w-full sm:flex-1 sm:min-w-[200px] sm:max-w-xs md:max-w-sm">
         <a-input
           v-model:value="filters.search"
           :placeholder="t('unit.searchPlaceholder')"
@@ -203,7 +215,7 @@ onMounted(() => {
       <a-select
         v-model:value="filters.is_active"
         :placeholder="t('unit.filterStatus')"
-        class="w-44 !rounded-lg !text-sm"
+        class="w-full sm:w-44 !rounded-lg !text-sm"
         allow-clear
         size="middle"
         @change="handleFilterChange"
@@ -223,7 +235,8 @@ onMounted(() => {
     </div>
 
     <div v-else class="bg-white rounded-xl border border-slate-200/90 shadow-2xs overflow-hidden">
-      <div class="overflow-x-auto">
+      <!-- Desktop Table View (Tablet Landscape & Desktop) -->
+      <div class="hidden md:block overflow-x-auto">
         <table class="w-full text-sm">
           <thead>
             <tr class="bg-slate-50/80 border-b border-slate-200/80">
@@ -324,11 +337,80 @@ onMounted(() => {
         </table>
       </div>
 
+      <!-- Mobile & Tablet Portrait Cards (< 768px): Modern & Ergonomic -->
+      <div class="md:hidden divide-y divide-slate-100">
+        <div
+          v-for="unit in units"
+          :key="unit.id"
+          class="p-3.5 sm:p-4 hover:bg-slate-50/80 transition-colors flex flex-col gap-2.5"
+        >
+          <!-- Top Row: Code + Name + Status Switch -->
+          <div class="flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2 min-w-0">
+              <span class="font-mono text-xs font-bold text-sky-700 bg-sky-50 border border-sky-200/90 px-2 py-0.5 rounded-md shrink-0">
+                {{ unit.code }}
+              </span>
+              <span
+                class="font-bold text-slate-800 text-sm hover:text-sky-600 cursor-pointer truncate"
+                @click="openDetailDrawer(unit)"
+              >
+                {{ unit.name }}
+              </span>
+            </div>
+
+            <div class="flex items-center gap-2 shrink-0">
+              <span class="text-[11px] font-medium" :class="unit.is_active ? 'text-emerald-600' : 'text-slate-400'">
+                {{ unit.is_active ? 'Hoạt động' : 'Tắt' }}
+              </span>
+              <a-switch
+                :checked="unit.is_active"
+                size="small"
+                @change="() => handleToggleStatus(unit)"
+              />
+            </div>
+          </div>
+
+          <!-- Description Box -->
+          <p v-if="unit.description" class="text-xs text-slate-600 leading-relaxed bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+            {{ unit.description }}
+          </p>
+
+          <!-- Bottom Action Bar: Icon buttons on right -->
+          <div class="flex items-center justify-end pt-2 border-t border-slate-100 gap-1.5">
+            <button
+              type="button"
+              @click="openEditModal(unit)"
+              class="w-8 h-8 rounded-lg bg-white border border-slate-200/90 hover:bg-sky-50 hover:border-sky-300 text-slate-600 hover:text-sky-600 flex items-center justify-center transition-colors cursor-pointer shadow-2xs"
+              :title="t('unit.editBtn')"
+            >
+              <EditOutlined class="text-sm" />
+            </button>
+
+            <a-popconfirm
+              :title="t('unit.confirmDelete')"
+              ok-text="Xóa"
+              cancel-text="Hủy"
+              ok-type="danger"
+              placement="left"
+              @confirm="() => handleDelete(unit)"
+            >
+              <button
+                type="button"
+                class="w-8 h-8 rounded-lg bg-white border border-slate-200/90 hover:bg-rose-50 hover:border-rose-300 text-slate-400 hover:text-rose-600 flex items-center justify-center transition-colors cursor-pointer shadow-2xs"
+                :title="t('unit.deleteBtn')"
+              >
+                <DeleteOutlined class="text-sm" />
+              </button>
+            </a-popconfirm>
+          </div>
+        </div>
+      </div>
+
       <div
         v-if="pagination.total > 0"
         class="px-4 py-3 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3"
       >
-        <span class="text-xs text-slate-500">
+        <span class="text-xs sm:text-sm text-slate-500 text-center sm:text-left">
           {{ t('unit.showingCount', { count: units.length, total: pagination.total }) }}
         </span>
 
@@ -336,9 +418,10 @@ onMounted(() => {
           v-model:current="pagination.current"
           v-model:pageSize="pagination.pageSize"
           :total="pagination.total"
-          :show-size-changer="true"
+          :show-size-changer="!isMobile"
           :page-size-options="['10', '20', '50']"
           size="small"
+          class="flex justify-center sm:justify-end"
           @change="handlePageChange"
         />
       </div>

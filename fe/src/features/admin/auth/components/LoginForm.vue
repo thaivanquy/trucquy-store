@@ -15,9 +15,9 @@ const {
 </script>
 
 <template>
-  <div class="w-full max-w-[420px] bg-white rounded-2xl shadow-xl shadow-slate-200/60 p-6 sm:p-8 md:p-9 border border-slate-100">
-    <div class="flex flex-col items-center mb-6 text-center">
-      <h1 class="text-2xl font-bold text-slate-800 tracking-tight">{{ t('auth.loginTitle') }}</h1>
+  <div class="w-full max-w-[420px] bg-white rounded-2xl shadow-xl shadow-slate-200/60 p-4.5 sm:p-8 md:p-9 border border-slate-100">
+    <div class="flex flex-col items-center mb-5 sm:mb-6 text-center">
+      <h1 class="text-xl sm:text-2xl font-bold text-slate-800 tracking-tight">{{ t('auth.loginTitle') }}</h1>
       <p class="text-xs sm:text-sm text-slate-400 mt-1">{{ t('auth.loginSubtitle') }}</p>
     </div>
 
