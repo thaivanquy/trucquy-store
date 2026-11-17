@@ -28,6 +28,16 @@ export const adminRoutes: RouteRecordRaw[] = [
         },
       },
       {
+        path: 'products',
+        name: 'admin-products',
+        component: () => import('@/features/admin/products/views/ProductListView.vue'),
+        meta: {
+          title: 'Quản lý Sản phẩm',
+          requiresAuth: true,
+          breadcrumbs: ['admin.products', 'admin.productsList'],
+        },
+      },
+      {
         path: 'categories',
         name: 'admin-categories',
         component: () => import('@/features/admin/categories/views/CategoryListView.vue'),
@@ -60,4 +70,3 @@ export const adminRoutes: RouteRecordRaw[] = [
     ],
   },
 ]
-

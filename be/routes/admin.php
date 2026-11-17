@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\Admin\AuthController;
 use App\Http\Controllers\Api\Admin\CategoryController;
 use App\Http\Controllers\Api\Admin\CommonDataController;
+use App\Http\Controllers\Api\Admin\ProductController;
 use App\Http\Controllers\Api\Admin\SupplierController;
 use App\Http\Controllers\Api\Admin\UnitController;
 use App\Http\Middleware\Admin\AuthenticateAdminToken;
@@ -23,6 +24,11 @@ Route::middleware(AuthenticateAdminToken::class)->group(function () {
     Route::patch('categories/reorder', [CategoryController::class, 'reorder']);
     Route::patch('categories/{category}/toggle-status', [CategoryController::class, 'toggleStatus']);
     Route::apiResource('categories', CategoryController::class);
+
+    Route::get('products/stats', [ProductController::class, 'stats']);
+    Route::patch('products/reorder', [ProductController::class, 'reorder']);
+    Route::patch('products/{product}/toggle-status', [ProductController::class, 'toggleStatus']);
+    Route::apiResource('products', ProductController::class);
 
     Route::patch('suppliers/{supplier}/toggle-status', [SupplierController::class, 'toggleStatus']);
     Route::apiResource('suppliers', SupplierController::class);

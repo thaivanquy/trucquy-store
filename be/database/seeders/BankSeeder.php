@@ -14,7 +14,6 @@ class BankSeeder extends Seeder
     {
         $rawBanks = null;
 
-        // 1. Try to fetch from live VietQR API
         try {
             $response = Http::withoutVerifying()
                 ->timeout(15)
@@ -25,10 +24,9 @@ class BankSeeder extends Seeder
                 $rawBanks = $json['data'] ?? null;
             }
         } catch (\Throwable $e) {
-            // Live fetch failed, fallback to local file
+
         }
 
-        // 2. Fallback to cached local json file
         if (empty($rawBanks)) {
             $localPath = database_path('data/vietqr_banks.json');
             if (File::exists($localPath)) {

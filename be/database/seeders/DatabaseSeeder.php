@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
             AdministrativeDivisionSeeder::class,
             BankSeeder::class,
             SupplierSeeder::class,
+            ProductSeeder::class,
         ]);
     }
 }

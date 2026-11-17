@@ -15,6 +15,7 @@ import {
 import type { Category, CategoryFilterParams } from '../types'
 import { useCategoryStore } from '../stores/categoryStore'
 import CategoryFormModal from '../components/CategoryFormModal.vue'
+import CategoryDetailDrawer from '../components/CategoryDetailDrawer.vue'
 import { useToast } from '@/composables/useToast'
 import { useI18n } from '@/i18n'
 
@@ -48,6 +49,14 @@ const treeGroups = ref<CategoryTreeGroup[]>([])
 const isModalVisible = ref<boolean>(false)
 const selectedCategory = ref<Category | null>(null)
 const defaultParentId = ref<number | null>(null)
+
+const isDetailDrawerVisible = ref<boolean>(false)
+const selectedDetailCategory = ref<Category | null>(null)
+
+function openDetailDrawer(cat: Category) {
+  selectedDetailCategory.value = cat
+  isDetailDrawerVisible.value = true
+}
 
 let debounceTimer: ReturnType<typeof setTimeout> | null = null
 
@@ -308,12 +317,10 @@ onMounted(() => {
       </a-select>
     </div>
 
-    <!-- Loading State: Mặc định của Ant Design -->
     <div v-if="isLoading && treeGroups.length === 0" class="py-16 text-center bg-white rounded-xl border border-slate-200/90 shadow-2xs">
       <a-spin size="large" />
     </div>
 
-    <!-- Empty State: Mặc định của Ant Design -->
     <div v-else-if="treeGroups.length === 0" class="py-14 text-center bg-white rounded-xl border border-slate-200/90 p-6 shadow-2xs">
       <a-empty />
     </div>
@@ -357,7 +364,11 @@ onMounted(() => {
 
             <div class="min-w-0 flex-1 pt-0.5">
               <div class="flex items-center gap-2.5 flex-wrap">
-                <span class="font-bold text-slate-900 text-base sm:text-lg leading-tight">
+                <span
+                  class="font-bold text-slate-900 text-base sm:text-lg leading-tight hover:text-sky-600 transition-colors cursor-pointer"
+                  @click.stop="openDetailDrawer(group.parent)"
+                  :title="'Xem chi tiết: ' + group.parent.name"
+                >
                   {{ group.parent.name }}
                 </span>
                 <span class="font-mono text-xs sm:text-sm font-bold text-sky-700 bg-sky-50 border border-sky-200 px-2.5 py-0.5 rounded">
@@ -468,7 +479,11 @@ onMounted(() => {
 
                 <div class="min-w-0 flex-1 pt-0.5">
                   <div class="flex items-center gap-2.5 flex-wrap">
-                    <span class="font-semibold text-slate-800 text-sm sm:text-base">
+                    <span
+                      class="font-semibold text-slate-800 text-sm sm:text-base hover:text-sky-600 transition-colors cursor-pointer"
+                      @click.stop="openDetailDrawer(child)"
+                      :title="'Xem chi tiết: ' + child.name"
+                    >
                       {{ child.name }}
                     </span>
                     <span class="font-mono text-xs font-semibold text-slate-700 bg-white border border-slate-200 px-2 py-0.5 rounded">
@@ -531,17 +546,18 @@ onMounted(() => {
 
       <div
         v-if="pagination.total > 0"
-        class="bg-white rounded-xl border border-slate-200/90 p-3 sm:p-4 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 mt-4"
+        class="bg-white rounded-xl border border-slate-200/90 px-4 py-3 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 mt-4"
       >
-        <div class="text-xs sm:text-sm text-slate-500 font-medium">
-          {{ t('category.showingGroups', { count: treeGroups.length }) }}
-        </div>
+        <span class="text-xs text-slate-500">
+          {{ t('category.showingCount', { count: treeGroups.length, total: pagination.total }) }}
+        </span>
         <a-pagination
           v-model:current="pagination.current"
           v-model:pageSize="pagination.pageSize"
           :total="pagination.total"
           :page-size-options="['5', '10', '20', '50']"
-          show-size-changer
+          :show-size-changer="true"
+          size="small"
           @change="handlePageChange"
         />
       </div>
@@ -553,6 +569,12 @@ onMounted(() => {
       :categories="allCategories"
       :default-parent-id="defaultParentId"
       @success="handleModalSuccess"
+    />
+
+    <CategoryDetailDrawer
+      v-model:visible="isDetailDrawerVisible"
+      :category="selectedDetailCategory"
+      @edit="openEditModal"
     />
   </div>
 </template>

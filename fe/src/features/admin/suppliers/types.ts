@@ -71,7 +71,7 @@ export const supplierSchema = z.object({
     .string()
     .trim()
     .max(150, 'Email không vượt quá 150 ký tự')
-    .refine((val) => !val || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val), {
+    .refine((val) => !val || /^[[^\s@]+@[[^\s@]+\.[[^\s@]+$/.test(val), {
       message: 'Định dạng email không hợp lệ',
     })
     .nullable()
@@ -114,5 +114,5 @@ export interface SupplierFilterParams {
   is_active?: boolean | string
   page?: number
   per_page?: number
+  all?: boolean
 }
-

@@ -38,17 +38,17 @@ const authStore = useAuthStore()
 const toast = useToast()
 const { t } = useI18n()
 
-// Responsive breakpoints
 const breakpoints = useBreakpoints(breakpointsTailwind)
-const isMobile = breakpoints.smaller('md') // < 768px
-const isTablet = breakpoints.between('md', 'lg') // 768px - 1024px
+const isMobile = breakpoints.smaller('md')
+const isTablet = breakpoints.between('md', 'lg')
 
-// Sider collapse state (for tablet/desktop) & Drawer state (for mobile)
 const collapsed = ref<boolean>(breakpoints.smaller('lg').value)
 const mobileDrawerOpen = ref<boolean>(false)
 
 const selectedKeys = ref<string[]>([
-  route.name === 'admin-categories'
+  route.name === 'admin-products'
+    ? 'products-list'
+    : route.name === 'admin-categories'
     ? 'categories'
     : route.name === 'admin-units'
     ? 'units'
@@ -57,7 +57,7 @@ const selectedKeys = ref<string[]>([
     : 'dashboard',
 ])
 const openKeys = ref<string[]>(
-  route.name === 'admin-categories' || route.name === 'admin-units'
+  route.name === 'admin-products' || route.name === 'admin-categories' || route.name === 'admin-units'
     ? ['sub-inventory']
     : route.name === 'admin-suppliers'
     ? ['sub-customers']
@@ -88,6 +88,13 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => {
     })
   }
 
+  if (route.name === 'admin-products') {
+    return [
+      { title: t('admin.products') },
+      { title: t('admin.productsList') },
+    ]
+  }
+
   if (route.name === 'admin-categories') {
     return [
       { title: t('admin.products') },
@@ -115,7 +122,12 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => {
 watch(
   () => route.name,
   (name) => {
-    if (name === 'admin-categories') {
+    if (name === 'admin-products') {
+      selectedKeys.value = ['products-list']
+      if (!collapsed.value) {
+        openKeys.value = ['sub-inventory']
+      }
+    } else if (name === 'admin-categories') {
       selectedKeys.value = ['categories']
       if (!collapsed.value) {
         openKeys.value = ['sub-inventory']
@@ -140,24 +152,21 @@ watch(
 const currentUserName = computed(() => authStore.user?.name || 'Admin TrucQuy')
 const currentUserEmail = computed(() => authStore.user?.email || 'admin@trucquy.vn')
 
-// Sync collapse with tablet resize
 watch(isTablet, (val) => {
   if (val) {
     collapsed.value = true
   }
 })
 
-// Close mobile drawer when route changes or screen gets larger
 watch(isMobile, (mobile) => {
   if (!mobile) {
     mobileDrawerOpen.value = false
   }
 })
 
-// Custom Ant Design theme matching the primary sky blue color of the login button
 const themeConfig = {
   token: {
-    colorPrimary: '#0ea5e9', // Sky 500 (login button primary)
+    colorPrimary: '#0ea5e9',
     colorInfo: '#0ea5e9',
     borderRadius: 8,
     fontFamily: 'inherit',
@@ -170,6 +179,8 @@ function handleMenuSelect({ key }: { key: string }) {
   }
   if (key === 'dashboard') {
     router.push('/admin/dashboard')
+  } else if (key === 'products-list' || key === 'products') {
+    router.push('/admin/products')
   } else if (key === 'categories') {
     router.push('/admin/categories')
   } else if (key === 'units') {
@@ -199,7 +210,7 @@ async function handleLogout() {
 <template>
   <a-config-provider :theme="themeConfig">
     <a-layout class="h-screen overflow-hidden bg-slate-100 flex flex-row">
-      <!-- Desktop & Tablet Sider (hidden on mobile < 768px) -->
+
       <a-layout-sider
         v-if="!isMobile"
         v-model:collapsed="collapsed"
@@ -209,7 +220,7 @@ async function handleLogout() {
         :collapsedWidth="72"
         class="admin-sider !bg-slate-900 shadow-xl shrink-0 z-30 h-screen flex flex-col"
       >
-        <!-- Logo Area -->
+
         <div class="h-16 shrink-0 flex items-center px-4 border-b border-slate-800 transition-all duration-300">
           <div class="flex items-center gap-3 overflow-hidden w-full" :class="{ 'justify-center': collapsed }">
             <div
@@ -228,7 +239,6 @@ async function handleLogout() {
           </div>
         </div>
 
-        <!-- Navigation Menu -->
         <div class="flex-1 overflow-y-auto overflow-x-hidden py-3 admin-sider-scroll">
           <a-menu
             v-model:selectedKeys="selectedKeys"
@@ -302,7 +312,6 @@ async function handleLogout() {
           </a-menu>
         </div>
 
-        <!-- Sidebar Bottom Footer -->
         <div class="p-3 border-t border-slate-800 bg-slate-900/60 shrink-0">
           <a
             href="/"
@@ -317,7 +326,6 @@ async function handleLogout() {
         </div>
       </a-layout-sider>
 
-      <!-- Mobile Drawer Sider (only for mobile < 768px) -->
       <a-drawer
         v-if="isMobile"
         v-model:open="mobileDrawerOpen"
@@ -326,7 +334,7 @@ async function handleLogout() {
         :width="260"
         :bodyStyle="{ padding: 0, backgroundColor: '#0f172a', display: 'flex', flexDirection: 'column', height: '100%' }"
       >
-        <!-- Mobile Drawer Header -->
+
         <div class="h-16 flex items-center justify-between px-5 border-b border-slate-800">
           <div class="flex items-center gap-3">
             <div
@@ -352,7 +360,6 @@ async function handleLogout() {
           </button>
         </div>
 
-        <!-- Mobile Drawer Menu -->
         <div class="flex-1 overflow-y-auto py-3">
           <a-menu
             v-model:selectedKeys="selectedKeys"
@@ -426,7 +433,6 @@ async function handleLogout() {
           </a-menu>
         </div>
 
-        <!-- Mobile Drawer Footer -->
         <div class="p-4 border-t border-slate-800 bg-slate-900/80">
           <a
             href="/"
@@ -439,13 +445,12 @@ async function handleLogout() {
         </div>
       </a-drawer>
 
-      <!-- Main Layout Body -->
       <a-layout class="bg-slate-100 flex flex-col flex-1 min-w-0 min-h-0 h-screen overflow-hidden">
-        <!-- Top Header with explicit normal line-height to prevent CSS inheritance bugs -->
+
         <a-layout-header
           class="!bg-white !px-3 sm:!px-6 !h-16 shrink-0 flex items-center justify-between border-b border-slate-200/80 z-20 shadow-xs admin-header leading-normal"
         >
-          <!-- Left side: Toggle button + Brand (mobile) / Breadcrumb (desktop) -->
+
           <div class="flex items-center gap-2.5 sm:gap-4">
             <button
               type="button"
@@ -458,7 +463,6 @@ async function handleLogout() {
               <MenuFoldOutlined v-else class="text-lg" />
             </button>
 
-            <!-- Brand on Mobile -->
             <div v-if="isMobile" class="flex items-center gap-2">
               <div
                 class="w-7 h-7 rounded-lg bg-gradient-to-tr from-sky-500 to-sky-400 flex items-center justify-center text-white font-bold text-xs shadow-xs"
@@ -470,7 +474,6 @@ async function handleLogout() {
               </span>
             </div>
 
-            <!-- Breadcrumb on Tablet/Desktop -->
             <a-breadcrumb class="hidden md:inline-flex text-xs font-medium leading-normal">
               <a-breadcrumb-item>
                 <router-link to="/admin/dashboard" class="text-slate-500 hover:text-sky-600">
@@ -498,9 +501,8 @@ async function handleLogout() {
             </a-breadcrumb>
           </div>
 
-          <!-- Right side: Notifications + Language Switcher + User Profile -->
           <div class="flex items-center gap-2 sm:gap-3 leading-normal">
-            <!-- Notifications Popover -->
+
             <a-popover placement="bottomRight" trigger="click">
               <template #title>
                 <div class="flex items-center justify-between py-1 leading-normal">
@@ -544,10 +546,8 @@ async function handleLogout() {
               </button>
             </a-popover>
 
-            <!-- Language Switcher Component -->
             <LanguageSwitcher />
 
-            <!-- User Profile Dropdown -->
             <a-dropdown placement="bottomRight" :trigger="['click']">
               <div
                 class="flex items-center gap-2 pl-1.5 py-1 pr-1.5 rounded-full hover:bg-slate-100 cursor-pointer transition-colors border border-transparent hover:border-slate-200 select-none"
@@ -598,7 +598,6 @@ async function handleLogout() {
           </div>
         </a-layout-header>
 
-        <!-- Main Content View Container -->
         <a-layout-content class="flex-1 min-h-0 overflow-y-auto overflow-x-hidden min-w-0 flex flex-col admin-main-scroll">
           <div class="p-3 sm:p-5 md:p-6 pb-16 sm:pb-24 flex-1 min-h-[calc(100vh-64px-52px)]">
             <RouterView />

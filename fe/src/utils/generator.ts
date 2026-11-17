@@ -2,9 +2,9 @@ export function toSlug(text: string): string {
   return text
     .toLowerCase()
     .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[đĐ]/g, 'd')
-    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/[[\u0300-\u036f]/g, '')
+    .replace(/[[đĐ]/g, 'd')
+    .replace(/[[^a-z0-9\s-]/g, '')
     .trim()
     .replace(/\s+/g, '-')
     .replace(/-+/g, '-')
@@ -13,9 +13,9 @@ export function toSlug(text: string): string {
 export function generateAbbr(name: string): string {
   const clean = name
     .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[đĐ]/g, 'd')
-    .replace(/[^a-zA-Z0-9\s]/g, '')
+    .replace(/[[\u0300-\u036f]/g, '')
+    .replace(/[[đĐ]/g, 'd')
+    .replace(/[[^a-zA-Z0-9\s]/g, '')
     .trim()
 
   const words = clean.split(/\s+/).filter(Boolean)
@@ -80,3 +80,17 @@ export function generateUnitCode(
   return code.toUpperCase()
 }
 
+export function generateBarcode(prefix: string = '200'): string {
+  const timestamp = Date.now().toString().slice(-7)
+  const randomPart = Math.floor(Math.random() * 100).toString().padStart(2, '0')
+  let code = `${prefix}${timestamp}${randomPart}`
+  code = code.padEnd(12, '0').slice(0, 12)
+
+  let sum = 0
+  for (let i = 0; i < 12; i++) {
+    const digit = parseInt(code[i] ?? '0', 10)
+    sum += i % 2 === 0 ? digit : digit * 3
+  }
+  const checksum = (10 - (sum % 10)) % 10
+  return `${code}${checksum}`
+}

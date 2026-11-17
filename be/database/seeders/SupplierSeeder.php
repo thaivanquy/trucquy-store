@@ -16,7 +16,7 @@ class SupplierSeeder extends Seeder
                 'phone' => '02633829911',
                 'email' => 'contact@dalatfarm.vn',
                 'address' => 'Số 12 Đường Hùng Vương, Phường 9',
-                'province_id' => 68, // Lâm Đồng
+                'province_id' => 68,
                 'ward_id' => null,
                 'contact_person' => 'Nguyễn Văn Hùng',
                 'contact_phone' => '0912345678',
@@ -33,7 +33,7 @@ class SupplierSeeder extends Seeder
                 'phone' => '02854155555',
                 'email' => 'vinamilk@vinamilk.com.vn',
                 'address' => 'Số 10 Tân Trào, Phường Tân Phú',
-                'province_id' => 79, // TP. HCM
+                'province_id' => 79,
                 'ward_id' => null,
                 'contact_person' => 'Trần Thị Bích Ngọc',
                 'contact_phone' => '0988776655',
@@ -50,7 +50,7 @@ class SupplierSeeder extends Seeder
                 'phone' => '02838219318',
                 'email' => 'orders@pepsico.com.vn',
                 'address' => 'Tầng 5, Sheraton Saigon, 88 Đồng Khởi, Bến Nghé',
-                'province_id' => 79, // TP. HCM
+                'province_id' => 79,
                 'ward_id' => null,
                 'contact_person' => 'Lê Hoàng Nam',
                 'contact_phone' => '0903112233',
@@ -67,7 +67,7 @@ class SupplierSeeder extends Seeder
                 'phone' => '02839998888',
                 'email' => 'kinhdoanh@banhkeomiennam.vn',
                 'address' => 'Khu Công Nghiệp Tân Bình, Tây Thạnh',
-                'province_id' => 79, // TP. HCM
+                'province_id' => 79,
                 'ward_id' => null,
                 'contact_person' => 'Phạm Quốc Cường',
                 'contact_phone' => '0938445566',
@@ -84,7 +84,7 @@ class SupplierSeeder extends Seeder
                 'phone' => '02773882211',
                 'email' => 'gaothapmuoi@dongthap.vn',
                 'address' => 'Ấp Mỹ Thạnh, Xã Mỹ An Hưng',
-                'province_id' => 87, // Đồng Tháp
+                'province_id' => 87,
                 'ward_id' => null,
                 'contact_person' => 'Võ Minh Trí',
                 'contact_phone' => '0977889900',

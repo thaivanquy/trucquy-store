@@ -15,7 +15,6 @@ class AdministrativeDivisionSeeder extends Seeder
     {
         $data = null;
 
-        // 1. Try to fetch from live API
         try {
             $response = Http::withoutVerifying()
                 ->timeout(15)
@@ -25,10 +24,9 @@ class AdministrativeDivisionSeeder extends Seeder
                 $data = $response->json();
             }
         } catch (\Throwable $e) {
-            // Live fetch failed, fallback to local file
+
         }
 
-        // 2. Fallback to cached local json file
         if (empty($data)) {
             $localPath = database_path('data/provinces_v2.json');
             if (File::exists($localPath)) {
@@ -73,10 +71,8 @@ class AdministrativeDivisionSeeder extends Seeder
                 }
             }
 
-            // Upsert provinces
             Province::upsert($provinces, ['code'], ['name', 'division_type', 'codename', 'phone_code', 'updated_at']);
 
-            // Upsert wards in chunks
             foreach (array_chunk($wards, 500) as $chunk) {
                 Ward::upsert($chunk, ['code'], ['province_code', 'name', 'division_type', 'codename', 'short_codename', 'updated_at']);
             }

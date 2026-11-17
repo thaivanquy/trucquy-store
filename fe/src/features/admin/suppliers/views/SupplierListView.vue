@@ -131,7 +131,7 @@ onMounted(() => {
 
 <template>
   <div class="space-y-4 pb-12 sm:pb-16 overflow-x-hidden">
-    <!-- Action Toolbar -->
+
     <div class="flex items-center justify-end gap-2.5 pb-0.5">
       <button
         type="button"
@@ -143,7 +143,6 @@ onMounted(() => {
       </button>
     </div>
 
-    <!-- Filters & Search Toolbar -->
     <div class="bg-white rounded-xl border border-slate-200/90 p-3 sm:p-3.5 shadow-2xs flex flex-wrap items-center gap-3">
       <div class="w-full sm:w-80">
         <a-input
@@ -173,17 +172,14 @@ onMounted(() => {
       </a-select>
     </div>
 
-    <!-- Loading State: Mặc định của Ant Design -->
     <div v-if="isLoading && suppliers.length === 0" class="py-16 text-center bg-white rounded-xl border border-slate-200/90 shadow-2xs">
       <a-spin size="large" />
     </div>
 
-    <!-- Empty State: Mặc định của Ant Design -->
     <div v-else-if="suppliers.length === 0" class="py-14 text-center bg-white rounded-xl border border-slate-200/90 p-6 shadow-2xs">
       <a-empty />
     </div>
 
-    <!-- Data Table (Đã bỏ cột Nợ đầu kỳ & Bỏ nút view ở danh sách) -->
     <div v-else class="bg-white rounded-xl border border-slate-200/90 shadow-2xs overflow-hidden">
       <div class="overflow-x-auto">
         <table class="w-full text-sm">
@@ -204,19 +200,17 @@ onMounted(() => {
               :key="supplier.id"
               class="hover:bg-slate-50/70 transition-colors"
             >
-              <!-- Index -->
+
               <td class="px-4 py-3.5 text-slate-400 font-mono text-xs">
                 {{ (pagination.current - 1) * pagination.pageSize + index + 1 }}
               </td>
 
-              <!-- Code -->
               <td class="px-4 py-3.5 whitespace-nowrap">
                 <span class="font-mono text-xs font-bold text-sky-700 bg-sky-50 border border-sky-200/80 px-2 py-0.5 rounded">
                   {{ supplier.code }}
                 </span>
               </td>
 
-              <!-- Name & Contact (Nhấp vào để mở modal xem thông tin) -->
               <td class="px-4 py-3.5">
                 <div class="cursor-pointer group" @click="openViewModal(supplier)">
                   <span class="font-semibold text-slate-800 group-hover:text-sky-600 transition-colors">
@@ -234,7 +228,6 @@ onMounted(() => {
                 </div>
               </td>
 
-              <!-- Phone & Email -->
               <td class="px-4 py-3.5 whitespace-nowrap">
                 <div class="space-y-0.5 text-xs">
                   <div v-if="supplier.phone" class="flex items-center gap-1.5 text-slate-700 font-medium">
@@ -249,7 +242,6 @@ onMounted(() => {
                 </div>
               </td>
 
-              <!-- Bank Info -->
               <td class="px-4 py-3.5 whitespace-nowrap">
                 <div v-if="supplier.bank_account || supplier.bank_name" class="text-xs space-y-0.5">
                   <div class="font-mono font-medium text-slate-800 flex items-center gap-1">
@@ -263,7 +255,6 @@ onMounted(() => {
                 <span v-else class="text-xs text-slate-400">—</span>
               </td>
 
-              <!-- Status Switch -->
               <td class="px-4 py-3.5 text-center whitespace-nowrap">
                 <a-switch
                   :checked="supplier.is_active"
@@ -272,10 +263,9 @@ onMounted(() => {
                 />
               </td>
 
-              <!-- Action buttons (Chỉ còn Sửa và Xóa, đã bỏ nút View) -->
               <td class="px-4 py-3.5 whitespace-nowrap">
                 <div class="flex items-center justify-center gap-1">
-                  <!-- Edit Button -->
+
                   <button
                     type="button"
                     @click="openEditModal(supplier)"
@@ -285,7 +275,6 @@ onMounted(() => {
                     <EditOutlined class="text-sm" />
                   </button>
 
-                  <!-- Delete Button with confirmation -->
                   <a-popconfirm
                     :title="t('supplier.confirmDelete')"
                     :ok-text="t('supplier.deleteBtn')"
@@ -309,27 +298,25 @@ onMounted(() => {
         </table>
       </div>
 
-      <!-- Pagination -->
       <div
         v-if="pagination.total > 0"
-        class="border-t border-slate-200/80 p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+        class="border-t border-slate-100 px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
       >
-        <div class="text-xs sm:text-sm text-slate-500 font-medium">
+        <span class="text-xs text-slate-500">
           {{ t('supplier.showingCount', { count: suppliers.length, total: pagination.total }) }}
-        </div>
+        </span>
         <a-pagination
           v-model:current="pagination.current"
           v-model:pageSize="pagination.pageSize"
           :total="pagination.total"
           :page-size-options="['10', '20', '50', '100']"
-          show-size-changer
+          :show-size-changer="true"
           size="small"
           @change="handlePageChange"
         />
       </div>
     </div>
 
-    <!-- Create / Edit / View Modal -->
     <SupplierFormModal
       v-model:visible="isModalVisible"
       :supplier="selectedSupplier"

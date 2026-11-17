@@ -37,18 +37,24 @@ const isRefreshing = ref<boolean>(false)
 const selectedOrder = ref<any>(null)
 const isModalVisible = ref<boolean>(false)
 
-const currentUserName = computed(() => authStore.user?.name || 'Quản trị viên')
+const currentUserName = computed(() => authStore.user?.name || t('admin.adminRole'))
+
+const periodOptions = computed(() => [
+  { label: t('admin.today'), value: 'today' },
+  { label: t('admin.sevenDays'), value: 'week' },
+  { label: t('admin.month'), value: 'month' },
+])
 
 function refreshData() {
   isRefreshing.value = true
   setTimeout(() => {
     isRefreshing.value = false
-    toast.success('Dữ liệu bảng điều khiển đã được cập nhật mới nhất!')
+    toast.success(t('admin.refreshSuccess'))
   }, 600)
 }
 
 function handleQuickAction(actionName: string) {
-  toast.info(`Tính năng "${actionName}" đang được chuẩn bị ra mắt!`)
+  toast.info(t('admin.comingSoon', { name: actionName }))
 }
 
 function viewOrderDetail(record: any) {
@@ -56,7 +62,6 @@ function viewOrderDetail(record: any) {
   isModalVisible.value = true
 }
 
-// Recent orders mock data
 const recentOrders = ref([
   {
     key: '1',
@@ -125,7 +130,6 @@ const recentOrders = ref([
   },
 ])
 
-// Low stock mock data
 const lowStockProducts = ref([
   {
     id: 1,
@@ -161,7 +165,6 @@ const lowStockProducts = ref([
   },
 ])
 
-// Category sales performance
 const categorySales = [
   { name: 'Thực phẩm khô & Gia vị', percent: 45, color: '#0ea5e9', amount: '2.100.000 ₫' },
   { name: 'Bia, Nước ngọt & Đồ uống', percent: 28, color: '#38bdf8', amount: '1.310.000 ₫' },
@@ -182,7 +185,7 @@ const orderColumns = [
 
 <template>
   <div class="space-y-4 sm:space-y-6 max-w-full">
-    <!-- Top Welcome Banner & Controls -->
+
     <div
       class="bg-white rounded-2xl p-4 sm:p-5 md:p-6 border border-slate-200/80 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4"
     >
@@ -192,7 +195,7 @@ const orderColumns = [
             {{ t('admin.overview') }}
           </h1>
           <a-tag color="processing" class="!rounded-full !px-2.5 !py-0.5 !text-xs !border-0 !bg-sky-50 !text-sky-700 font-semibold">
-            ● Trực tuyến
+            ● {{ t('admin.online') }}
           </a-tag>
         </div>
         <p class="text-xs sm:text-sm text-slate-500 mt-1">
@@ -203,11 +206,7 @@ const orderColumns = [
       <div class="flex flex-wrap items-center gap-2 sm:gap-2.5">
         <a-segmented
           v-model:value="selectedPeriod"
-          :options="[
-            { label: 'Hôm nay', value: 'today' },
-            { label: '7 ngày', value: 'week' },
-            { label: 'Tháng', value: 'month' },
-          ]"
+          :options="periodOptions"
           class="shrink-0"
         />
 
@@ -217,7 +216,7 @@ const orderColumns = [
           class="!flex !items-center !gap-1.5 !rounded-lg text-xs sm:text-sm"
         >
           <template #icon><ReloadOutlined /></template>
-          <span class="hidden sm:inline">Làm mới</span>
+          <span class="hidden sm:inline">{{ t('admin.refresh') }}</span>
         </a-button>
 
         <a-button
@@ -231,9 +230,8 @@ const orderColumns = [
       </div>
     </div>
 
-    <!-- 4 Key Metric Cards (Responsive: 1 col on mobile, 2 on tablet, 4 on desktop) -->
     <a-row :gutter="[12, 12]">
-      <!-- Metric 1: Doanh thu -->
+
       <a-col :xs="24" :sm="12" :lg="6">
         <a-card :bordered="false" class="!rounded-2xl !shadow-xs hover:!shadow-md transition-shadow">
           <div class="flex items-start justify-between">
@@ -253,12 +251,11 @@ const orderColumns = [
             <span class="text-sky-600 font-semibold flex items-center gap-0.5">
               <ArrowUpOutlined /> +15.8%
             </span>
-            <span class="text-slate-400 truncate">so với hôm qua</span>
+            <span class="text-slate-400 truncate">{{ t('admin.vsYesterday') }}</span>
           </div>
         </a-card>
       </a-col>
 
-      <!-- Metric 2: Đơn hàng mới -->
       <a-col :xs="24" :sm="12" :lg="6">
         <a-card :bordered="false" class="!rounded-2xl !shadow-xs hover:!shadow-md transition-shadow">
           <div class="flex items-start justify-between">
@@ -267,7 +264,7 @@ const orderColumns = [
                 {{ t('admin.newOrders') }}
               </p>
               <div class="text-xl sm:text-2xl font-black text-slate-800 leading-none truncate">
-                28 <span class="text-xs sm:text-sm font-semibold text-slate-500">đơn</span>
+                28 <span class="text-xs sm:text-sm font-semibold text-slate-500">{{ t('admin.ordersUnit') }}</span>
               </div>
             </div>
             <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-cyan-50 flex items-center justify-center text-cyan-600 text-lg sm:text-xl shadow-xs shrink-0">
@@ -276,14 +273,13 @@ const orderColumns = [
           </div>
           <div class="flex items-center justify-between mt-3 pt-3 border-t border-slate-100 text-xs">
             <span class="text-amber-600 font-medium flex items-center gap-1 truncate">
-              <ClockCircleOutlined /> 4 chờ xử lý
+              <ClockCircleOutlined /> {{ t('admin.pendingCount', { count: 4 }) }}
             </span>
             <span class="text-sky-600 font-semibold shrink-0">+8%</span>
           </div>
         </a-card>
       </a-col>
 
-      <!-- Metric 3: Sản phẩm đang bán -->
       <a-col :xs="24" :sm="12" :lg="6">
         <a-card :bordered="false" class="!rounded-2xl !shadow-xs hover:!shadow-md transition-shadow">
           <div class="flex items-start justify-between">
@@ -292,7 +288,7 @@ const orderColumns = [
                 {{ t('admin.products') }}
               </p>
               <div class="text-xl sm:text-2xl font-black text-slate-800 leading-none truncate">
-                542 <span class="text-xs sm:text-sm font-semibold text-slate-500">mặt hàng</span>
+                542 <span class="text-xs sm:text-sm font-semibold text-slate-500">{{ t('admin.itemsUnit') }}</span>
               </div>
             </div>
             <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 text-lg sm:text-xl shadow-xs shrink-0">
@@ -301,14 +297,13 @@ const orderColumns = [
           </div>
           <div class="flex items-center gap-1.5 mt-3 pt-3 border-t border-slate-100 text-xs">
             <span class="text-rose-500 font-semibold flex items-center gap-0.5">
-              <WarningOutlined /> 4 món
+              <WarningOutlined /> {{ t('admin.lowStockCount', { count: 4 }) }}
             </span>
-            <span class="text-slate-400 truncate">sắp hết hàng</span>
+            <span class="text-slate-400 truncate">{{ t('admin.aboutToRunOut') }}</span>
           </div>
         </a-card>
       </a-col>
 
-      <!-- Metric 4: Khách hàng -->
       <a-col :xs="24" :sm="12" :lg="6">
         <a-card :bordered="false" class="!rounded-2xl !shadow-xs hover:!shadow-md transition-shadow">
           <div class="flex items-start justify-between">
@@ -317,7 +312,7 @@ const orderColumns = [
                 {{ t('admin.customers') }}
               </p>
               <div class="text-xl sm:text-2xl font-black text-slate-800 leading-none truncate">
-                136 <span class="text-xs sm:text-sm font-semibold text-slate-500">thành viên</span>
+                136 <span class="text-xs sm:text-sm font-semibold text-slate-500">{{ t('admin.membersUnit') }}</span>
               </div>
             </div>
             <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600 text-lg sm:text-xl shadow-xs shrink-0">
@@ -328,22 +323,21 @@ const orderColumns = [
             <span class="text-sky-600 font-semibold flex items-center gap-0.5">
               <ArrowUpOutlined /> +5
             </span>
-            <span class="text-slate-400 truncate">khách mới hôm nay</span>
+            <span class="text-slate-400 truncate">{{ t('admin.newCustomersToday') }}</span>
           </div>
         </a-card>
       </a-col>
     </a-row>
 
-    <!-- Main Content Area: Responsive Grid -->
     <a-row :gutter="[16, 16]">
-      <!-- Left Column (Desktop 16 cols, Tablet/Mobile 24 cols) -->
+
       <a-col :xs="24" :lg="16" class="space-y-4 sm:space-y-6">
-        <!-- Recent Orders Table Card with horizontal scroll protection -->
+
         <a-card :bordered="false" class="!rounded-2xl !shadow-xs overflow-hidden">
           <template #title>
             <div class="flex items-center gap-2">
               <span class="font-bold text-slate-800 text-sm sm:text-base">{{ t('admin.recentOrders') }}</span>
-              <a-tag color="processing" class="!text-xs !bg-sky-50 !text-sky-600 !border-sky-200">Mới</a-tag>
+              <a-tag color="processing" class="!text-xs !bg-sky-50 !text-sky-600 !border-sky-200">{{ t('admin.newBadge') }}</a-tag>
             </div>
           </template>
 
@@ -360,25 +354,22 @@ const orderColumns = [
             size="middle"
             :scroll="{ x: 700 }"
           >
-            <!-- Custom Order Code -->
+
             <template #bodyCell="{ column, record }">
               <template v-if="column.key === 'code'">
                 <span class="font-mono font-bold text-slate-800 text-xs">{{ record.code }}</span>
                 <span class="block text-[10px] text-slate-400">{{ record.time }}</span>
               </template>
 
-              <!-- Custom Customer Column -->
               <template v-else-if="column.key === 'customer'">
                 <div class="font-medium text-slate-800 text-xs leading-tight">{{ record.customer }}</div>
                 <div class="text-[11px] text-slate-400">{{ record.phone }}</div>
               </template>
 
-              <!-- Custom Total Column -->
               <template v-else-if="column.key === 'total'">
                 <span class="font-bold text-sky-600 text-xs">{{ record.total }}</span>
               </template>
 
-              <!-- Custom Payment Method Column -->
               <template v-else-if="column.key === 'paymentMethod'">
                 <a-tag
                   :color="record.paymentMethod === 'VietQR' ? 'blue' : record.paymentMethod === 'MoMo' ? 'magenta' : 'default'"
@@ -388,14 +379,12 @@ const orderColumns = [
                 </a-tag>
               </template>
 
-              <!-- Custom Status Column -->
               <template v-else-if="column.key === 'status'">
                 <a-tag :color="record.statusColor" class="!text-[11px]">
                   {{ record.statusText }}
                 </a-tag>
               </template>
 
-              <!-- Action Column -->
               <template v-else-if="column.key === 'action'">
                 <a-button
                   type="text"
@@ -410,7 +399,6 @@ const orderColumns = [
           </a-table>
         </a-card>
 
-        <!-- Category Sales Breakdown -->
         <a-card :bordered="false" class="!rounded-2xl !shadow-xs">
           <template #title>
             <span class="font-bold text-slate-800 text-sm sm:text-base">Tỷ trọng doanh thu theo ngành hàng</span>
@@ -433,9 +421,8 @@ const orderColumns = [
         </a-card>
       </a-col>
 
-      <!-- Right Column (Desktop 8 cols, Tablet/Mobile 24 cols) -->
       <a-col :xs="24" :lg="8" class="space-y-4 sm:space-y-6">
-        <!-- Quick Action Shortcuts -->
+
         <a-card :bordered="false" class="!rounded-2xl !shadow-xs">
           <template #title>
             <span class="font-bold text-slate-800 text-sm sm:text-base">{{ t('admin.quickActions') }}</span>
@@ -494,7 +481,6 @@ const orderColumns = [
           </div>
         </a-card>
 
-        <!-- Low Stock Warning Card -->
         <a-card :bordered="false" class="!rounded-2xl !shadow-xs">
           <template #title>
             <div class="flex items-center gap-2">
@@ -538,7 +524,6 @@ const orderColumns = [
           </div>
         </a-card>
 
-        <!-- Recent Activity Timeline Card -->
         <a-card :bordered="false" class="!rounded-2xl !shadow-xs">
           <template #title>
             <span class="font-bold text-slate-800 text-sm sm:text-base">{{ t('admin.recentActivity') }}</span>
@@ -566,7 +551,6 @@ const orderColumns = [
       </a-col>
     </a-row>
 
-    <!-- Responsive Order Detail Modal -->
     <a-modal
       v-model:open="isModalVisible"
       :title="`Chi tiết đơn hàng ${selectedOrder?.code || ''}`"

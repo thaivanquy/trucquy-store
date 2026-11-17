@@ -153,39 +153,41 @@ async function handleSubmit() {
 </script>
 
 <template>
-  <a-modal
+  <a-drawer
     :open="visible"
-    :title="null"
-    :footer="null"
+    placement="right"
+    :width="500"
     :closable="false"
-    :maskClosable="false"
-    destroyOnClose
-    centered
-    width="520px"
-    class="custom-unit-modal p-0 overflow-hidden"
+    :mask-closable="true"
+    destroy-on-close
+    :z-index="1050"
+    :body-style="{ padding: 0, height: '100%', display: 'flex', flexDirection: 'column' }"
+    :header-style="{ display: 'none' }"
+    :footer-style="{ display: 'none' }"
+    class="custom-unit-drawer"
+    @close="handleCancel"
   >
-    <div class="bg-white rounded-2xl flex flex-col max-h-[90vh]">
-      <!-- Modal Header -->
-      <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100 shrink-0">
+    <div class="bg-white flex flex-col h-full">
+
+      <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
         <h3 class="text-base font-bold text-slate-900 leading-tight">
           {{ isEdit ? t('unit.modalEditTitle') : t('unit.modalCreateTitle') }}
         </h3>
         <button
           type="button"
           @click="handleCancel"
-          class="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 flex items-center justify-center transition-colors cursor-pointer"
+          class="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 flex items-center justify-center transition-colors cursor-pointer text-lg leading-none"
         >
-          <span class="text-lg leading-none">&times;</span>
+          &times;
         </button>
       </div>
 
-      <!-- Modal Body -->
       <form
         @submit.prevent="handleSubmit"
         id="unit-form"
-        class="flex-1 overflow-y-auto px-5 py-4 space-y-4"
+        class="flex-1 overflow-y-auto px-6 py-4 space-y-4"
       >
-        <!-- Code (Chỉ hiển thị ở chế độ chỉnh sửa, readonly không cho sửa) -->
+
         <div v-if="isEdit">
           <label class="block text-xs font-semibold text-slate-700 mb-1">
             {{ t('unit.codeLabel') }}
@@ -201,7 +203,6 @@ async function handleSubmit() {
           </a-input>
         </div>
 
-        <!-- Name -->
         <div>
           <label class="block text-xs font-semibold text-slate-700 mb-1">
             {{ t('unit.nameLabel') }} <span class="text-rose-500">*</span>
@@ -222,7 +223,6 @@ async function handleSubmit() {
           </span>
         </div>
 
-        <!-- Description -->
         <div>
           <label class="block text-xs font-semibold text-slate-700 mb-1">
             {{ t('unit.descriptionLabel') }}
@@ -243,8 +243,7 @@ async function handleSubmit() {
         </div>
       </form>
 
-      <!-- Modal Footer -->
-      <div class="flex items-center justify-end gap-2.5 px-5 py-3.5 border-t border-slate-100 bg-slate-50/50 rounded-b-2xl shrink-0">
+      <div class="flex items-center justify-end gap-2.5 px-6 py-4 border-t border-slate-100 bg-white shrink-0 mt-auto">
         <button
           type="button"
           @click="handleCancel"
@@ -264,5 +263,5 @@ async function handleSubmit() {
         </button>
       </div>
     </div>
-  </a-modal>
+  </a-drawer>
 </template>

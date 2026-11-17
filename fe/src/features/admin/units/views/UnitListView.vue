@@ -12,6 +12,7 @@ import {
 import type { Unit, UnitFilterParams } from '../types'
 import { useUnitStore } from '../stores/unitStore'
 import UnitFormModal from '../components/UnitFormModal.vue'
+import UnitDetailDrawer from '../components/UnitDetailDrawer.vue'
 import { useToast } from '@/composables/useToast'
 import { useI18n } from '@/i18n'
 
@@ -34,6 +35,14 @@ const pagination = reactive({
 
 const isModalVisible = ref<boolean>(false)
 const selectedUnit = ref<Unit | null>(null)
+
+const isDetailDrawerVisible = ref<boolean>(false)
+const selectedDetailUnit = ref<Unit | null>(null)
+
+function openDetailDrawer(record: Unit) {
+  selectedDetailUnit.value = record
+  isDetailDrawerVisible.value = true
+}
 
 const draggedIndex = ref<number | null>(null)
 const isReordering = ref<boolean>(false)
@@ -164,7 +173,7 @@ onMounted(() => {
 
 <template>
   <div class="space-y-4 pb-12 sm:pb-16 overflow-x-hidden">
-    <!-- Action Toolbar -->
+
     <div class="flex items-center justify-end gap-2.5 pb-0.5">
       <button
         type="button"
@@ -176,7 +185,6 @@ onMounted(() => {
       </button>
     </div>
 
-    <!-- Filters Toolbar -->
     <div class="bg-white rounded-xl border border-slate-200/90 p-3 sm:p-3.5 shadow-2xs flex flex-wrap items-center gap-3">
       <div class="w-full sm:w-80">
         <a-input
@@ -206,17 +214,14 @@ onMounted(() => {
       </a-select>
     </div>
 
-    <!-- Loading State -->
     <div v-if="isLoading && units.length === 0" class="py-16 text-center bg-white rounded-xl border border-slate-200/90 shadow-2xs">
       <a-spin size="large" />
     </div>
 
-    <!-- Empty State -->
     <div v-else-if="units.length === 0" class="py-14 text-center bg-white rounded-xl border border-slate-200/90 p-6 shadow-2xs">
       <a-empty />
     </div>
 
-    <!-- Data Table -->
     <div v-else class="bg-white rounded-xl border border-slate-200/90 shadow-2xs overflow-hidden">
       <div class="overflow-x-auto">
         <table class="w-full text-sm">
@@ -242,31 +247,32 @@ onMounted(() => {
               class="hover:bg-slate-50/70 transition-all select-none"
               :class="{ 'opacity-40 ring-2 ring-sky-500 bg-sky-50/50 scale-[0.99]': draggedIndex === index }"
             >
-              <!-- Drag Handle -->
+
               <td class="w-9 px-2 text-center text-slate-300 hover:text-slate-600 cursor-grab active:cursor-grabbing" :title="t('unit.dragToReorder')">
                 <HolderOutlined class="text-sm" />
               </td>
 
-              <!-- Code -->
               <td class="px-4 py-3.5 whitespace-nowrap">
                 <span class="font-mono text-xs font-bold text-sky-700 bg-sky-50 border border-sky-200/80 px-2 py-0.5 rounded">
                   {{ unit.code }}
                 </span>
               </td>
 
-              <!-- Name -->
               <td class="px-4 py-3.5">
                 <div class="flex items-center gap-2">
                   <div class="w-6 h-6 rounded bg-slate-100 flex items-center justify-center text-slate-500 shrink-0">
                     <TagOutlined class="text-xs" />
                   </div>
-                  <span class="font-semibold text-slate-800">
+                  <span
+                    class="font-semibold text-slate-800 hover:text-sky-600 transition-colors cursor-pointer"
+                    @click="openDetailDrawer(unit)"
+                    :title="'Xem chi tiết: ' + unit.name"
+                  >
                     {{ unit.name }}
                   </span>
                 </div>
               </td>
 
-              <!-- Description -->
               <td class="px-4 py-3.5 text-slate-600 text-xs">
                 <span v-if="unit.description" class="line-clamp-2" :title="unit.description">
                   {{ unit.description }}
@@ -274,7 +280,6 @@ onMounted(() => {
                 <span v-else class="text-slate-400">—</span>
               </td>
 
-              <!-- Status Switch -->
               <td class="px-4 py-3.5 text-center whitespace-nowrap">
                 <a-switch
                   :checked="unit.is_active"
@@ -284,10 +289,9 @@ onMounted(() => {
                 />
               </td>
 
-              <!-- Actions -->
               <td class="px-4 py-3.5 text-center whitespace-nowrap">
                 <div class="flex items-center justify-center gap-1">
-                  <!-- Edit -->
+
                   <button
                     type="button"
                     @click="openEditModal(unit)"
@@ -297,7 +301,6 @@ onMounted(() => {
                     <EditOutlined class="text-sm" />
                   </button>
 
-                  <!-- Delete with Popconfirm placed to the left so it NEVER overflows -->
                   <a-popconfirm
                     :title="t('unit.confirmDelete')"
                     ok-text="Xóa"
@@ -321,8 +324,10 @@ onMounted(() => {
         </table>
       </div>
 
-      <!-- Pagination -->
-      <div class="px-4 py-3 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <div
+        v-if="pagination.total > 0"
+        class="px-4 py-3 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3"
+      >
         <span class="text-xs text-slate-500">
           {{ t('unit.showingCount', { count: units.length, total: pagination.total }) }}
         </span>
@@ -339,12 +344,17 @@ onMounted(() => {
       </div>
     </div>
 
-    <!-- Unit Form Modal -->
     <UnitFormModal
       v-model:visible="isModalVisible"
       :unit="selectedUnit"
       :existing-units="units"
       @success="handleModalSuccess"
+    />
+
+    <UnitDetailDrawer
+      v-model:visible="isDetailDrawerVisible"
+      :unit="selectedDetailUnit"
+      @edit="openEditModal"
     />
   </div>
 </template>

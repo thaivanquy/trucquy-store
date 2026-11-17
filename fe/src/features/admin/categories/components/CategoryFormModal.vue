@@ -193,23 +193,35 @@ async function handleSubmit() {
 </script>
 
 <template>
-  <a-modal
+  <a-drawer
     :open="visible"
-    :title="null"
-    :footer="null"
-    :width="600"
-    destroyOnClose
-    centered
-    @cancel="emit('update:visible', false)"
+    placement="right"
+    :width="560"
+    :closable="false"
+    :mask-closable="true"
+    destroy-on-close
+    :z-index="1050"
+    :body-style="{ padding: 0, height: '100%', display: 'flex', flexDirection: 'column' }"
+    :header-style="{ display: 'none' }"
+    :footer-style="{ display: 'none' }"
+    class="custom-category-drawer"
+    @close="emit('update:visible', false)"
   >
-    <div class="p-1">
-      <div class="pb-3 mb-3.5 border-b border-slate-100 flex items-center justify-between pr-8 min-h-[32px]">
+    <div class="bg-white flex flex-col h-full">
+      <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between shrink-0">
         <h3 class="text-base sm:text-lg font-bold text-slate-900 leading-normal m-0">
           {{ isEdit ? t('category.modalEditTitle') : t('category.modalCreateTitle') }}
         </h3>
+        <button
+          type="button"
+          @click="emit('update:visible', false)"
+          class="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 flex items-center justify-center transition-colors cursor-pointer text-lg leading-none"
+        >
+          &times;
+        </button>
       </div>
 
-      <form @submit.prevent="handleSubmit" class="space-y-3.5">
+      <form @submit.prevent="handleSubmit" id="category-form" class="flex-1 overflow-y-auto px-6 py-4 space-y-4">
         <div>
           <label class="block text-sm font-semibold text-slate-700 mb-1.5">
             {{ t('category.imageLabel') }}
@@ -323,24 +335,25 @@ async function handleSubmit() {
             {{ errors.description }}
           </span>
         </div>
-
-        <div class="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-100 mt-3.5">
-          <button
-            type="button"
-            class="px-4 h-9 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-medium transition-colors cursor-pointer"
-            @click="emit('update:visible', false)"
-          >
-            {{ t('category.cancelModal') }}
-          </button>
-          <button
-            type="submit"
-            :disabled="isSubmitting"
-            class="inline-flex items-center justify-center px-4.5 h-9 rounded-lg bg-sky-600 hover:bg-sky-700 active:bg-sky-800 !text-white text-sm font-semibold shadow-xs transition-all active:scale-[0.98] cursor-pointer disabled:opacity-60"
-          >
-            <span class="!text-white text-white leading-none">{{ isEdit ? t('category.submitUpdate') : t('category.submitCreate') }}</span>
-          </button>
-        </div>
       </form>
+
+      <div class="flex items-center justify-end gap-2.5 px-6 py-4 border-t border-slate-100 bg-white shrink-0">
+        <button
+          type="button"
+          class="px-4 h-9 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-medium transition-colors cursor-pointer"
+          @click="emit('update:visible', false)"
+        >
+          {{ t('category.cancelModal') }}
+        </button>
+        <button
+          type="submit"
+          form="category-form"
+          :disabled="isSubmitting"
+          class="inline-flex items-center justify-center px-4.5 h-9 rounded-lg bg-sky-600 hover:bg-sky-700 active:bg-sky-800 !text-white text-sm font-semibold shadow-xs transition-all active:scale-[0.98] cursor-pointer disabled:opacity-60"
+        >
+          <span class="!text-white text-white leading-none">{{ isEdit ? t('category.submitUpdate') : t('category.submitCreate') }}</span>
+        </button>
+      </div>
     </div>
-  </a-modal>
+  </a-drawer>
 </template>

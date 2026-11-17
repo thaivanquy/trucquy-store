@@ -255,32 +255,43 @@ async function handleSubmit() {
 </script>
 
 <template>
-  <a-modal
+  <a-drawer
     :open="visible"
-    :title="null"
-    :footer="null"
-    :width="740"
-    destroyOnClose
-    centered
-    @cancel="emit('update:visible', false)"
+    placement="right"
+    :width="680"
+    :closable="false"
+    :mask-closable="true"
+    destroy-on-close
+    :z-index="1050"
+    :body-style="{ padding: 0, height: '100%', display: 'flex', flexDirection: 'column' }"
+    :header-style="{ display: 'none' }"
+    :footer-style="{ display: 'none' }"
+    class="custom-supplier-drawer"
+    @close="emit('update:visible', false)"
   >
-    <div class="flex flex-col max-h-[80vh]">
-      <!-- Modal Header (Fixed) -->
-      <div class="pb-3 border-b border-slate-100 flex items-center justify-between shrink-0 pr-8 min-h-[32px]">
-        <h3 class="text-base sm:text-lg font-bold text-slate-900 leading-normal m-0">
+    <div class="bg-white flex flex-col h-full">
+
+      <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
+        <h3 class="text-base font-bold text-slate-900 leading-tight">
           {{ isView ? t('supplier.modalDetailTitle') : isEdit ? t('supplier.modalEditTitle') : t('supplier.modalCreateTitle') }}
         </h3>
+        <button
+          type="button"
+          @click="emit('update:visible', false)"
+          class="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 flex items-center justify-center transition-colors cursor-pointer text-lg leading-none"
+        >
+          &times;
+        </button>
       </div>
 
-      <!-- Loading State khi mở modal: Mặc định của Ant Design -->
-      <div v-if="isLoadingData" class="py-24 flex items-center justify-center">
+      <div v-if="isLoadingData" class="flex-1 flex items-center justify-center">
         <a-spin size="large" />
       </div>
 
       <template v-else>
-        <!-- ================= VIEW MODE (CHỈ HIỆN THÔNG TIN, KHÔNG HIỆN INPUT) ================= -->
-        <div v-if="isView" class="flex-1 overflow-y-auto px-3 py-3.5 space-y-3.5">
-        <!-- 1. Thông tin cơ bản -->
+
+        <div v-if="isView" class="flex-1 overflow-y-auto px-6 py-5 space-y-4">
+
         <div class="bg-slate-50/70 rounded-xl border border-slate-200/70 p-3.5">
           <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2 mb-3">
             <span class="w-2 h-2 rounded-full bg-sky-500"></span>
@@ -317,7 +328,6 @@ async function handleSubmit() {
           </div>
         </div>
 
-        <!-- 2. Người liên hệ -->
         <div class="bg-slate-50/70 rounded-xl border border-slate-200/70 p-3.5">
           <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2 mb-3">
             <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
@@ -335,7 +345,6 @@ async function handleSubmit() {
           </div>
         </div>
 
-        <!-- 3. Địa chỉ -->
         <div class="bg-slate-50/70 rounded-xl border border-slate-200/70 p-3.5">
           <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2 mb-3">
             <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
@@ -357,7 +366,6 @@ async function handleSubmit() {
           </div>
         </div>
 
-        <!-- 4. Tài khoản ngân hàng -->
         <div class="bg-slate-50/70 rounded-xl border border-slate-200/70 p-3.5">
           <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2 mb-3">
             <span class="w-2 h-2 rounded-full bg-amber-500"></span>
@@ -382,7 +390,6 @@ async function handleSubmit() {
           </div>
         </div>
 
-        <!-- 5. Ghi chú -->
         <div v-if="form.note" class="bg-slate-50/70 rounded-xl border border-slate-200/70 p-3.5">
           <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2 mb-2">
             <span class="w-2 h-2 rounded-full bg-violet-500"></span>
@@ -392,14 +399,13 @@ async function handleSubmit() {
         </div>
       </div>
 
-      <!-- ================= EDIT / CREATE MODE (FORM INPUTS) ================= -->
       <form
         v-else
         @submit.prevent="handleSubmit"
         id="supplier-form"
-        class="flex-1 overflow-y-auto px-3 py-3.5 space-y-3.5"
+        class="flex-1 overflow-y-auto px-6 py-5 space-y-4"
       >
-        <!-- 1. Thông tin cơ bản -->
+
         <div class="bg-slate-50/70 rounded-xl border border-slate-200/70 p-3.5">
           <h4 class="text-sm font-bold text-slate-800 flex items-center gap-2 mb-3">
             <span class="w-2 h-2 rounded-full bg-sky-500"></span>
@@ -484,7 +490,6 @@ async function handleSubmit() {
           </div>
         </div>
 
-        <!-- 2. Người liên hệ -->
         <div class="bg-slate-50/70 rounded-xl border border-slate-200/70 p-3.5">
           <h4 class="text-sm font-bold text-slate-800 flex items-center gap-2 mb-3">
             <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
@@ -523,7 +528,6 @@ async function handleSubmit() {
           </div>
         </div>
 
-        <!-- 3. Địa chỉ (Đã bỏ Mã số thuế và Quận huyện) -->
         <div class="bg-slate-50/70 rounded-xl border border-slate-200/70 p-3.5">
           <h4 class="text-sm font-bold text-slate-800 flex items-center gap-2 mb-3">
             <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
@@ -598,7 +602,6 @@ async function handleSubmit() {
           </div>
         </div>
 
-        <!-- 4. Tài khoản ngân hàng (Đồng bộ VietQR) -->
         <div class="bg-slate-50/70 rounded-xl border border-slate-200/70 p-3.5">
           <h4 class="text-sm font-bold text-slate-800 flex items-center gap-2 mb-3">
             <span class="w-2 h-2 rounded-full bg-amber-500"></span>
@@ -661,7 +664,6 @@ async function handleSubmit() {
           </div>
         </div>
 
-        <!-- 5. Ghi chú -->
         <div class="bg-slate-50/70 rounded-xl border border-slate-200/70 p-3.5">
           <h4 class="text-sm font-bold text-slate-800 flex items-center gap-2 mb-2">
             <span class="w-2 h-2 rounded-full bg-violet-500"></span>
@@ -679,13 +681,12 @@ async function handleSubmit() {
       </form>
       </template>
 
-      <!-- Modal Footer (Fixed at bottom) -->
-      <div class="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-100 shrink-0 px-3">
-        <!-- View mode footer buttons -->
+      <div class="flex items-center justify-end gap-2.5 px-6 py-4 border-t border-slate-100 bg-white shrink-0 mt-auto">
+
         <template v-if="isView">
           <button
             type="button"
-            class="px-4 h-9 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-medium transition-colors cursor-pointer"
+            class="px-4 h-9 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-colors cursor-pointer select-none"
             @click="emit('update:visible', false)"
           >
             {{ t('supplier.cancelModal') }}
@@ -694,17 +695,16 @@ async function handleSubmit() {
             type="button"
             @click="switchToEditMode"
             :disabled="isLoadingData"
-            class="inline-flex items-center justify-center px-4 h-9 rounded-lg bg-sky-600 hover:bg-sky-700 text-white text-sm font-semibold shadow-xs transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50"
+            class="inline-flex items-center justify-center px-5 h-9 rounded-lg bg-sky-600 hover:bg-sky-700 !text-white text-xs font-semibold shadow-xs transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50 select-none"
           >
-            <span class="text-white leading-none">{{ t('supplier.editBtn') }}</span>
+            <span class="!text-white text-white leading-none">{{ t('supplier.editBtn') }}</span>
           </button>
         </template>
 
-        <!-- Edit/Create mode footer buttons -->
         <template v-else>
           <button
             type="button"
-            class="px-4 h-9 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-medium transition-colors cursor-pointer"
+            class="px-4 h-9 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-colors cursor-pointer select-none"
             @click="emit('update:visible', false)"
           >
             {{ t('supplier.cancelModal') }}
@@ -713,9 +713,9 @@ async function handleSubmit() {
             type="submit"
             form="supplier-form"
             :disabled="isLoadingData || isSubmitting"
-            class="inline-flex items-center justify-center gap-2 px-5 h-9 rounded-lg bg-sky-600 hover:bg-sky-700 active:bg-sky-800 !text-white text-sm font-semibold shadow-xs transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            class="inline-flex items-center justify-center gap-2 px-5 h-9 rounded-lg bg-sky-600 hover:bg-sky-700 active:bg-sky-800 !text-white text-xs font-semibold shadow-xs transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed select-none"
           >
-            <span v-if="isSubmitting" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+            <span v-if="isSubmitting" class="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
             <span class="!text-white text-white leading-none">
               {{ isEdit ? t('supplier.submitUpdate') : t('supplier.submitCreate') }}
             </span>
@@ -723,5 +723,5 @@ async function handleSubmit() {
         </template>
       </div>
     </div>
-  </a-modal>
+  </a-drawer>
 </template>
